@@ -40,13 +40,14 @@ public:
 
 	CodeBook();
 	CodeBook(std::string filename);
+	bool isInCodeBook(std::string word);
 	int lookUpWord(std::string word);
 
 	~CodeBook();
 
 private:
 	WordCode* mWordPairs;	//declare a dynamic array for all the WordCodes.
-	int mWordPairLength;	//an int to store the length of each dynamic array (length, not max index)
+	long mWordPairLength;	//an int to store the length of each dynamic array (length, not max index)
 
 	void codeTextParser(std::string filename);
 };

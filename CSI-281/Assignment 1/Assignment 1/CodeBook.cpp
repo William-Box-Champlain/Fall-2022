@@ -28,9 +28,14 @@ void CodeBook::codeTextParser(std::string filename)	//convert the codes.txt file
 			std::getline(input, key);
 			mWordPairLength++;
 		}
+		std::cout << "There are " << mWordPairLength << " words in the array" << std::endl;
 		mWordPairs = new WordCode[mWordPairLength];
-		input.clear();
-		input.seekg(0);
+	}
+	input.close();
+	input.open(filename);
+	if(input.good())
+	{
+		std::string key;
 		int i = 0;
 		while (!input.eof() && i != mWordPairLength)	//create WordPairs and stuff them into the array.
 		{
@@ -38,7 +43,9 @@ void CodeBook::codeTextParser(std::string filename)	//convert the codes.txt file
 			std::string word = key;
 			input >> key;
 			int code = std::stoi(key);
+			//std::cout << "The word " << word << " has been added to the CodeBook with the code " << code << std::endl;
 			mWordPairs[i] = WordCode(word, code);
+			i++;
 		}
 	}
 }
@@ -47,6 +54,18 @@ CodeBook::CodeBook()
 {
 	mWordPairs = NULL;
 	mWordPairLength = 0;
+}
+
+bool CodeBook::isInCodeBook(std::string word)
+{
+	if (lookUpWord(word) == 0)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
 }
 
 CodeBook::CodeBook(std::string filename)
