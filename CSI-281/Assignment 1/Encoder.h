@@ -25,12 +25,28 @@ class Encoder
 {
 	public:
 
+		/*
+			pre: none
+		   post: generates a CodeBook object with an empty mCodeBook and mTarget.
+		purpose: this is the default constructor for the CodeBook class.
+		*/
 		Encoder();
+		/*
+			pre: requires the filename of the file to be changed by the encoder.
+		   post: generates a CodeBook object with an empty mCodeBook and populated mTarget.
+		purpose: this is one of two parameterized constructors for the CodeBook class, and allows one to create a CodeBook with a target file already set but still in need of a codebook.
+		*/
 		Encoder(std::string target);
+		/*
+			pre: requires the filename of both the file to be changed and the file cont
+		   post: generates a CodeBook object with a populated mTarget and constructs a new CodeBook object when ran.
+		purpose: this is the default constructor for the CodeBook class.
+		*/
 		Encoder(std::string target, std::string codetext);
 
 		~Encoder();
 
+		void setTarget();
 		void setCodeBook(CodeBook* codeBook);
 
 		void output(std::string outputName);
