@@ -49,8 +49,16 @@ const char* coloredFragmentShaderSource =
 const float vertexData[] = {
 //	x		y		z		r		g		b		a
    -0.5f,  -0.5f,	0.0f,	0.0f,	0.0f,	1.0f,	1.0f,	//bottom left
-	0.5f,  -0.5f,	0.0f,	0.0f,	1.0f,	0.0f,	1.0f,	//bottom right
-	0.0f,	0.5f,	0.0f,	1.0f,	0.0f,	0.0f,	1.0f,	//top center
+	0.0f,  -0.5f,	0.0f,	0.0f,	1.0f,	0.0f,	1.0f,	//bottom right
+   -0.25f,	0.0f,	0.0f,	1.0f,	0.0f,	0.0f,	1.0f,	//top center
+
+   -0.0f,  -0.5f,	0.0f,	0.0f,	1.0f,	0.0f,	1.0f,	//bottom left
+	0.5f,  -0.5f,	0.0f,	1.0f,	0.0f,	0.0f,	1.0f,	//bottom right
+	0.25f,	0.0f,	0.0f,	0.0f,	0.0f,	1.0f,	1.0f,	//top center
+
+   -0.25f,  0.0f,	0.0f,	1.0f,	0.0f,	0.0f,	1.0f,	//bottom left
+	0.25f,  0.0f,	0.0f,	0.0f,	0.0f,	1.0f,	1.0f,	//bottom right
+	0.0f,	0.5f,	0.0f,	0.0f,	1.0f,	0.0f,	1.0f,	//top center
 };
 
 int main() {
@@ -156,7 +164,7 @@ int main() {
 		glUseProgram(shaderProgram);
 		
 		//TODO: Draw triangle (3 indices!)
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 0, 9);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
