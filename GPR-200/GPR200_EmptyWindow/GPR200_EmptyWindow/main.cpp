@@ -14,6 +14,19 @@ const char* vertexShaderSource =
 "	gl_Position = vec4(in_Pos, 1.0);	\n"
 "}										\0";
 
+//Vertex shader with multiple attributes
+const char* coloredVertexShaderSource =
+"#version 330							\n"
+"layout (location = 0) in vec3 in_Pos;	\n"
+"layout (location = 1) in vec4 in_Color;\n"
+"										\n"
+"out vec4 Color;						\n"
+"void main()							\n"
+"{										\n"
+"	Color = in_Color;					\n"
+"	gl_Position = vec4(in_Pos,1.0);		\n"
+"};										\n";
+
 //Fragment shader source code
 const char* fragmentShaderSource =
 "#version 330				\n"
@@ -22,12 +35,22 @@ const char* fragmentShaderSource =
 "	FragColor = vec4(1.0);	\n"
 "}							\0";
 
+//Fragment shader with colors
+const char* coloredFragmentShaderSource =
+"#version 330				\n"
+"out vec4 FragColor;		\n"
+"in vec4 Color;				\n"
+"void main()				\n"
+"{							\n"
+"FragColor = Color;			\n"
+"}							\n";
+
 //Vertex data array
 const float vertexData[] = {
-//	x		y		z
-   -0.5f,  -0.5f,	0.0f,	//bottom left
-	0.5f,  -0.5f,	0.0f,	//bottom right
-	0.0f,	0.5f,	0.0f	//top center
+//	x		y		z		r		g		b		a
+   -0.5f,  -0.5f,	0.0f,	0.0f,	0.0f,	1.0f,	1.0f,	//bottom left
+	0.5f,  -0.5f,	0.0f,	0.0f,	1.0f,	0.0f,	1.0f,	//bottom right
+	0.0f,	0.5f,	0.0f,	1.0f,	0.0f,	0.0f,	1.0f,	//top center
 };
 
 int main() {
@@ -49,7 +72,7 @@ int main() {
 
 	//Create and compile vertex shader
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	glShaderSource(vertexShader, 1, &coloredVertexShaderSource, NULL);
 	glCompileShader(vertexShader);
 
 	//Get vertex shader compilation status and output info log
@@ -64,7 +87,7 @@ int main() {
 	
 	//Create and compile fragment shader
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+	glShaderSource(fragmentShader, 1, &coloredFragmentShaderSource, NULL);
 	glCompileShader(fragmentShader);
 
 
@@ -117,9 +140,13 @@ int main() {
 	//glVertexAttribPointer(...)
 	//glEnableVertexAttribArray(...)
 
-	//position
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (const void*)0);
+	//position (3 floats, XYZ)
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 7, (const void*)0);
 	glEnableVertexAttribArray(0);
+
+	//color (4 floats, RGBA)
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 7, (const void*)(sizeof(float) * 3));
+	glEnableVertexAttribArray(1);
 
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.2f, 0.3f, 0.6f, 1.0f);
