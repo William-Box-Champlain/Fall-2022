@@ -61,6 +61,7 @@ void bubbleSort(T list[], int size)
 	bool swapped = true;
 	int i = 0;
 	int n = size;
+	T temp;
 	while (swapped)
 	{
 		swapped = false;
@@ -68,7 +69,9 @@ void bubbleSort(T list[], int size)
 		{
 			if (list[i + 1] < list[i])
 			{
-				swap(list[i + 1], list[i]);
+				temp = list[i+1];
+				list[i + 1] = list[i];
+				list[i] = temp;
 				swapped = true;
 			}
 		}
@@ -100,6 +103,61 @@ void insertionSort(T list[], int size)
 	}
 };
 
+/*
+* Pre: requires a sorted or unsorted array, as well as the array's length
+* Post: the array should be sorted in assending order (from left to right)
+* Purpose: sort an array with the merge-sort algorithm
+*/
+template<typename T>
+void mergeSort(T list[], int lowerBound, int middle, int upperBound)
+{
+
+}
+
+/*
+* Pre: requires a sorted or unsorted array, as well as the array's length
+* Post: the array should be sorted in assending order (from left to right)
+* Purpose: sort an array with the quick-sort algorithm
+*/
+template<typename T>
+void quickSort(T list[], int lowerBound, int upperBound)
+{
+	int i = lowerBound;
+	int j = upperBound;
+
+	int pivotPoint = (i + j) / 2;
+
+	T pivot = list[pivotPoint];
+	T temp;
+
+	while (i <= j)
+	{
+		while (list[i] < pivot)
+		{
+			i++;
+		}
+		while (list[j] > pivot)
+		{
+			j--;
+		}
+		if (i <= j)
+		{
+			temp = list[i];
+			list[i] = list[j];
+			list[j] = temp;
+			i++;
+			j--;
+		}
+	}
+	if (lowerBound < j)
+	{
+		quickSort(list, lowerBound, j);
+	}
+	if (i < upperBound)
+	{
+		quickSort(list, i, upperBound);
+	}
+}
 /*
 * Pre: requires a sorted or unsorted array, as well as the array's length
 * Post: the array should be sorted in assending order (from left to right)
