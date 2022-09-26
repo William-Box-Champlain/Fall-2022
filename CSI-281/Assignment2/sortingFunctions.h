@@ -104,14 +104,82 @@ void insertionSort(T list[], int size)
 };
 
 /*
+* Pre: requires arrays that have been fully broken down into it's individual elements
+* Post: the array should be sorted in assending order (from left to right)
+* Purpose: merge and order the broken up arrays created by the above mergeSort function
+*/
+template<typename T>
+void merge(T list[], int lowerBound, int mid, int upperBound)
+{
+	int i;
+	int j;
+	int k;
+
+	int leftArraySize = mid - lowerBound + 1;
+	int rightArraySize = upperBound - mid;
+
+	T* leftArray = new T[leftArraySize];
+	T* rightArray = new T[rightArraySize];
+	
+	for (i = 0; i < leftArraySize; i++)
+	{
+		leftArray[i] = list[lowerBound + i];
+	}
+	for (j = 0; j < rightArraySize; j++)
+	{
+		rightArray[j] = list[mid + j + 1];
+	}
+
+	i = j = 0;
+
+	for (k = lowerBound; k < upperBound && i < leftArraySize && j < rightArraySize; k++)
+	{
+		if (leftArray[i] <= rightArray[j])
+		{
+			list[k] = leftArray[i];
+			i++;
+		}
+		else
+		{
+			list[k] = rightArray[j];
+			j++;
+		}
+	}
+
+	while (i < leftArraySize)
+	{
+		list[k] = leftArray[i];
+		i++;
+		k++;
+	}
+	while (j < rightArraySize)
+	{
+		list[k] = rightArray[j];
+		j++;
+		k++;
+	}
+	delete[] leftArray;
+	delete[] rightArray;
+}
+
+/*
 * Pre: requires a sorted or unsorted array, as well as the array's length
 * Post: the array should be sorted in assending order (from left to right)
 * Purpose: sort an array with the merge-sort algorithm
 */
 template<typename T>
-void mergeSort(T list[], int lowerBound, int middle, int upperBound)
+void mergeSort(T list[], int lowerBound, int upperBound)
 {
+	int mid;
+	if (lowerBound < upperBound)
+	{
+		mid = (lowerBound + upperBound) / 2;
 
+		mergeSort(list, lowerBound, mid);
+		mergeSort(list, mid + 1, upperBound);
+
+		merge(list, lowerBound, mid, upperBound);
+	}
 }
 
 /*
