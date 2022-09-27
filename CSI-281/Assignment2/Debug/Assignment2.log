@@ -1,14 +1,8 @@
 ﻿  Assignment2.cpp
-C:\Users\willb\source\repos\Fall-2022\CSI-281\Assignment2\sortingFunctions.h(46,23): warning C4018: '<': signed/unsigned mismatch
-C:\Users\willb\source\repos\Fall-2022\CSI-281\Assignment2\Assignment2.cpp(39): message : see reference to function template instantiation 'void coutArray<int>(T [],int)' being compiled
+H:\Fall-2022\CSI-281\Assignment2\sortingFunctions.h(46,23): warning C4018: '<': signed/unsigned mismatch
+H:\Fall-2022\CSI-281\Assignment2\Assignment2.cpp(38): message : see reference to function template instantiation 'void coutArray<int>(T [],int)' being compiled
           with
           [
               T=int
           ]
-C:\Users\willb\source\repos\Fall-2022\CSI-281\Assignment2\sortingFunctions.h(112,4): warning C4101: 'temp': unreferenced local variable
-C:\Users\willb\source\repos\Fall-2022\CSI-281\Assignment2\Assignment2.cpp(40): message : see reference to function template instantiation 'void selectionSort<int>(T [],int)' being compiled
-          with
-          [
-              T=int
-          ]
-  Assignment2.vcxproj -> C:\Users\willb\source\repos\Fall-2022\CSI-281\Assignment2\Debug\Assignment2.exe
+  Assignment2.vcxproj -> H:\Fall-2022\CSI-281\Assignment2\Debug\Assignment2.exe
