@@ -18,9 +18,15 @@
     <ClCompile Include="Assignment2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Generator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sortingFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Generator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
