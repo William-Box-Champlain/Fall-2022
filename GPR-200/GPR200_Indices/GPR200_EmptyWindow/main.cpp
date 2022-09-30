@@ -244,7 +244,7 @@ int main() {
 		switch (objectToDraw)
 		{
 		case quad:
-			glBindVertexArray(triforceElementBufferObject);
+			glBindVertexArray(quadElementBufferObject);
 			break;
 		case triforce:
 			glBindVertexArray(triforceElementBufferObject);

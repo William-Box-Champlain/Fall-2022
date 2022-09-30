@@ -2,6 +2,7 @@
 #include "GLFW/glfw3.h"
 
 #include <stdio.h>
+#include "Shader.h"
 
 //void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void resizeFrameBufferCallback(GLFWwindow* window, int width, int height);
@@ -14,18 +15,24 @@ const char* vertexShaderSource =
 "	gl_Position = vec4(in_Pos, 1.0);	\n"
 "}										\0";
 
-//Vertex shader with multiple attributes
-const char* coloredVertexShaderSource =
-"#version 330							\n"
-"layout (location = 0) in vec3 in_Pos;	\n"
-"layout (location = 1) in vec4 in_Color;\n"
-"										\n"
-"out vec4 Color;						\n"
-"void main()							\n"
-"{										\n"
-"	Color = in_Color;					\n"
-"	gl_Position = vec4(in_Pos,1.0);		\n"
-"};										\n";
+////Vertex shader with multiple attributes
+//const char* coloredVertexShaderSource =
+//"#version 330							\n"
+//"layout (location = 0) in vec3 in_Pos;	\n"
+//"layout (location = 1) in vec4 in_Color;\n"
+//"										\n"
+//"out vec4 Color;						\n"
+//"uniform float iTime;					\n"
+//"void main()							\n"
+//"{										\n"
+//"	Color = in_Color;					\n"
+//"	vec3 pos = in_Pos;					\n"
+//"	pos.y += sin(iTime)/3;				\n"
+//"	pos.y += sin(pos.x + iTime)/3;		\n"
+//"	pos.x += cos(iTime)/3;				\n"
+//"	pos.x += cos(pos.y + iTime)/3;		\n"
+//"	gl_Position = vec4(pos,1.0);		\n"
+//"};										\0";
 
 //Fragment shader source code
 const char* fragmentShaderSource =
@@ -35,15 +42,16 @@ const char* fragmentShaderSource =
 "	FragColor = vec4(1.0);	\n"
 "}							\0";
 
-//Fragment shader with colors
-const char* coloredFragmentShaderSource =
-"#version 330				\n"
-"out vec4 FragColor;		\n"
-"in vec4 Color;				\n"
-"void main()				\n"
-"{							\n"
-"FragColor = Color;			\n"
-"}							\n";
+////Fragment shader with colors
+//const char* coloredFragmentShaderSource =
+//"#version 330								\n"
+//"out vec4 FragColor;						\n"
+//"in vec4 Color;								\n"
+//"uniform float iTime;						\n"
+//"void main()								\n"
+//"{											\n"
+//"	FragColor = abs(sin(iTime))*Color;		\n"
+//"}											\n";
 
 //Vertex data array
 const float vertexData[] = {
@@ -78,12 +86,12 @@ int main() {
 	glfwSetFramebufferSizeCallback(window, resizeFrameBufferCallback);
 
 
-	//Create and compile vertex shader
+	/*Create and compile vertex shader
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &coloredVertexShaderSource, NULL);
 	glCompileShader(vertexShader);
 
-	//Get vertex shader compilation status and output info log
+	Get vertex shader compilation status and output info log
 	GLint success;
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
 	if (!success)
@@ -93,13 +101,13 @@ int main() {
 		printf("Failed to compile vertex shader %s", infoLog);
 	}
 	
-	//Create and compile fragment shader
+	Create and compile fragment shader
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &coloredFragmentShaderSource, NULL);
 	glCompileShader(fragmentShader);
 
 
-	//Get fragment shader compilation status and output info log
+	Get fragment shader compilation status and output info log
 	success;
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
 	if (!success)
@@ -109,17 +117,17 @@ int main() {
 		printf("Failed to compile vertex shader %s", infoLog);
 	}
 
-	//Create shader program
+	Create shader program
 	GLuint shaderProgram = glCreateProgram();
 
-	//Attach vertex and fragment shaders to shader program
+	Attach vertex and fragment shaders to shader program
 	glAttachShader(shaderProgram, vertexShader);
 	glAttachShader(shaderProgram, fragmentShader);
 
-	//Link shader program
+	Link shader program
 	glLinkProgram(shaderProgram);
 
-	//Check for link status and output errors
+	Check for link status and output errors
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
 	if (!success)
 	{
@@ -129,9 +137,11 @@ int main() {
 		return -1;
 	}
 
-	//TODO: Delete vertex + fragment shader objects
+	TODO: Delete vertex + fragment shader objects
 	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	glDeleteShader(fragmentShader);*/
+
+	Shader shader("shaders/vertexShader.vert","shaders/fragmentShader.frag");
 
 	//Create and bind Vertex Array Object (VAO)
 	GLuint vertexArrayObject;
@@ -160,8 +170,15 @@ int main() {
 		glClearColor(0.2f, 0.3f, 0.6f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		shader.use();
 		//TODO:Use shader program
-		glUseProgram(shaderProgram);
+		//glUseProgram(shaderProgram);
+
+		//set iTime variable to glfwGeTime()
+
+		float time = (float)glfwGetTime();
+		
+		shader.setFloat("iTime", time);
 		
 		//TODO: Draw triangle (3 indices!)
 		glDrawArrays(GL_TRIANGLES, 0, 9);
