@@ -22,22 +22,22 @@ plagiarism checking)
 
 #include <iostream>
 #include "sortingFunctions.h"
-
-
+#include "Generator.h"
 
 int main()
 {
-    //declare unsorted array's and their length
-    const int arrayLength = 5;
-    int intArray0[arrayLength] = {1,5,2,4,3};
-    int intArray1[arrayLength] = { 1,5,2,4,3 };
-    std::string stringArray0[arrayLength] = { "c","n","t","i","e" };
-    std::string stringArray1[arrayLength] = { "c","n","t","i","e" };
-    
-    //display unsorted array, sort array with selection-sort, and display the sorted array
-    coutArray(intArray0,arrayLength);
-    quickSort(intArray0, 0, 4);
-    coutArray(intArray0,arrayLength);
+    Generator generator;
+    int length = 1000000;
+    int arraySize = 1000000;
+    int* numbers = new int[arraySize];
+
+    generator.createFile("testNumbers",length);
+    generator.loadFile("testNumbers",numbers,arraySize);
+    mergeSort(numbers, 0, arraySize-1);
+    generator.outputArray("sortedNumbers", numbers, arraySize);
+    generator.outputReversedArray("reverseSortedNumbers", numbers, arraySize);
+
+    delete[] numbers;
 
     return 0;
 }
