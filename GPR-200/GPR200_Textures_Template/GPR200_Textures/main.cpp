@@ -54,7 +54,7 @@ int main() {
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	int width, height, numComponents;
-	unsigned char* textureData = stbi_load("textures/brick_wall.jpg", &width, &height, &numComponents,0);
+	unsigned char* textureData = stbi_load("textures/brick_wall_texture.jpg", &width, &height, &numComponents,0);
 
 	if (!textureData) printf("Failed to load file");
 
@@ -111,6 +111,9 @@ int main() {
 
 		shader.use();
 		shader.setFloat("iTime", time);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

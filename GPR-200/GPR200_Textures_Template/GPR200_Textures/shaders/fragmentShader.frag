@@ -8,6 +8,6 @@ uniform float iTime;
 uniform sampler2D iTexture;
 
 void main(){          
-    vec4 color = texture(iTexture,TexCoords);
+    vec4 color = Color * texture(iTexture,TexCoords);
     FragColor = color;
 }
