@@ -65,9 +65,9 @@ const float triforceVertexData[] = {
 	   -0.5f,  -0.5f,	0.0f,	0.0f,	0.0f,	1.0f,	1.0f,	//bottom left
 		0.0f,  -0.5f,	0.0f,	0.0f,	1.0f,	0.0f,	1.0f,	//bottom center
 		0.5f,  -0.5f,	0.0f,	1.0f,	0.0f,	0.0f,	1.0f,	//bottom right
-	   -0.25f,	0.0f,	0.0f,	1.0f,	0.0f,	0.0f,	1.0f,	//middle left
-	    0.25f,	0.0f,	0.0f,	0.0f,	1.0f,	0.0f,	1.0f,	//middle right
-		0.0f,	0.5f,	0.0f,	0.0f,	0.0f,	1.0f,	1.0f,	//top center
+	   -0.25f,	0.0f,	0.0f,	0.0f,	1.0f,	0.0f,	1.0f,	//middle left
+	    0.25f,	0.0f,	0.0f,	0.0f,	0.0f,	1.0f,	1.0f,	//middle right
+		0.0f,	0.5f,	0.0f,	1.0f,	0.0f,	0.0f,	1.0f,	//top center
 };
 
 const unsigned int triforceIndices[] = {
