@@ -141,10 +141,12 @@
   <ItemGroup>
     <ClCompile Include="Assignment2.cpp" />
     <ClCompile Include="Generator.cpp" />
+    <ClCompile Include="timer system\timerSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Generator.h" />
     <ClInclude Include="sortingFunctions.h" />
+    <ClInclude Include="timer system\timerSystem.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

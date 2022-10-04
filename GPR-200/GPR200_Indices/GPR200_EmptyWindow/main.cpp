@@ -48,10 +48,10 @@ const char* coloredFragmentShaderSource =
 //Vertex data array
 const float quadVertexData[] = {
 //	x		y		z		r		g		b		a
-   -0.5f,  -0.5f,	0.0f,	0.0f,	0.0f,	1.0f,	1.0f,	//bottom left
-	0.0f,  -0.5f,	0.0f,	0.0f,	1.0f,	0.0f,	1.0f,	//bottom right
-   -0.25f,	0.0f,	0.0f,	1.0f,	0.0f,	0.0f,	1.0f,	//top center
-	0.25f,  0.0f,	0.0f,	0.0f,	0.0f,	1.0f,	1.0f,	//top right
+   -0.5f,  -0.5f,	0.0f,	0.0f,	0.0f,	1.0f,	1.0f,	//bottom left	(0)
+	0.0f,  -0.5f,	0.0f,	0.0f,	1.0f,	0.0f,	1.0f,	//bottom right	(1)
+   -0.25f,	0.0f,	0.0f,	1.0f,	0.0f,	0.0f,	1.0f,	//top left		(2)
+	0.25f,  0.0f,	0.0f,	0.0f,	0.0f,	1.0f,	1.0f,	//top right		(3)
 	
 };
 
@@ -63,18 +63,35 @@ const unsigned int quadIndices[] = {
 const float triforceVertexData[] = {
 	//	x		y		z		r		g		b		a
 	   -0.5f,  -0.5f,	0.0f,	0.0f,	0.0f,	1.0f,	1.0f,	//bottom left
-		0.0f,  -0.5f,	0.0f,	0.0f,	1.0f,	0.0f,	1.0f,	//bottom right
-	   -0.25f,	0.0f,	0.0f,	1.0f,	0.0f,	0.0f,	1.0f,	//top center
-		0.25f,  0.0f,	0.0f,	0.0f,	0.0f,	1.0f,	1.0f,	//top right
-
+		0.0f,  -0.5f,	0.0f,	0.0f,	1.0f,	0.0f,	1.0f,	//bottom center
+		0.5f,  -0.5f,	0.0f,	1.0f,	0.0f,	0.0f,	1.0f,	//bottom right
+	   -0.25f,	0.0f,	0.0f,	1.0f,	0.0f,	0.0f,	1.0f,	//middle left
+	    0.25f,	0.0f,	0.0f,	0.0f,	1.0f,	0.0f,	1.0f,	//middle right
+		0.0f,	0.5f,	0.0f,	0.0f,	0.0f,	1.0f,	1.0f,	//top center
 };
 
 const unsigned int triforceIndices[] = {
-	0,1,2, //First triangle
-	1,3,2  //Second triangle
+	0,1,3,		//First triangle
+	1,2,4,		//Second triangle
+	3,4,5		//Third triangle
 };
 
-bool wireFrame = true;
+const float stripVertexData[] = {
+	//	x		y		z		r		g		b		a
+	   -0.5f,  -0.5f,	0.0f,	0.0f,	0.0f,	1.0f,	1.0f,	//bottom left	(0)
+		0.0f,  -0.5f,	0.0f,	0.0f,	1.0f,	0.0f,	1.0f,	//bottom center	(1)
+		0.5f,  -0.5f,	0.0f,	1.0f,	0.0f,	0.0f,	1.0f,	//bottom right	(2)
+	   -0.25f,	0.0f,	0.0f,	1.0f,	0.0f,	0.0f,	1.0f,	//middle left	(3)
+		0.25f,	0.0f,	0.0f,	0.0f,	1.0f,	0.0f,	1.0f,	//middle center	(4)
+		0.75f,	0.0f,	0.0f,	0.0f,	0.0f,	1.0f,	1.0f	//middle right	(5)
+};
+
+const unsigned int stripIndices[] = {
+	0,1,3,		//First triangle
+	3,1,4,		//Second triangle
+	1,2,4,		//Third triangle
+	2,5,4,		//fourth triangle
+};
 
 enum objectType
 {
@@ -83,9 +100,12 @@ enum objectType
 	strip
 };
 
+bool wireFrame = true;
 objectType objectToDraw = quad;
+int indiciesCount = 6;
 
 int main() {
+
 	if (!glfwInit()) {
 		printf("glfw failed to init");
 		return 1;
@@ -167,13 +187,13 @@ int main() {
 	GLuint quadVertexBufferObject;
 	glGenBuffers(1, &quadVertexBufferObject);
 	glBindBuffer(GL_ARRAY_BUFFER, quadVertexBufferObject);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertexData), quadVertexData, GL_STATIC_DRAW);
+	
 
 	//Indices data
 	GLuint quadElementBufferObject;
 	glGenBuffers(1, &quadElementBufferObject);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadElementBufferObject);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_STATIC_DRAW);
+	
 
 	//TODO: Define vertex attribute layout
 	//glVertexAttribPointer(...)
@@ -198,13 +218,12 @@ int main() {
 	GLuint triforceVertexBufferObject;
 	glGenBuffers(1, &triforceVertexBufferObject);
 	glBindBuffer(GL_ARRAY_BUFFER, triforceVertexBufferObject);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triforceVertexData), triforceVertexData, GL_STATIC_DRAW);
 
 	//Indices data
 	GLuint triforceElementBufferObject;
 	glGenBuffers(1, &triforceElementBufferObject);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triforceElementBufferObject);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(triforceIndices), triforceIndices, GL_STATIC_DRAW);
+	
 
 	//TODO: Define vertex attribute layout
 	//glVertexAttribPointer(...)
@@ -218,6 +237,35 @@ int main() {
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 7, (const void*)(sizeof(float) * 3));
 	glEnableVertexAttribArray(1);
 	//triforce end
+
+	//strip start
+	//Create and bind Vertex Array Object (VAO)
+	GLuint stripVertexArrayObject;
+	glGenVertexArrays(1, &stripVertexArrayObject);
+	glBindVertexArray(stripVertexArrayObject);
+
+	//Create and bind Vertex Buffer Object (VBO), fill with vertexData
+	GLuint stripVertexBufferObject;
+	glGenBuffers(1, &stripVertexBufferObject);
+	glBindBuffer(GL_ARRAY_BUFFER, stripVertexBufferObject);
+
+	//Indices data
+	GLuint stripElementBufferObject;
+	glGenBuffers(1, &stripElementBufferObject);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, stripElementBufferObject);
+
+	//TODO: Define vertex attribute layout
+	//glVertexAttribPointer(...)
+	//glEnableVertexAttribArray(...)
+
+	//position (3 floats, XYZ)
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 7, (const void*)0);
+	glEnableVertexAttribArray(0);
+
+	//color (4 floats, RGBA)
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 7, (const void*)(sizeof(float) * 3));
+	glEnableVertexAttribArray(1);
+	//strip end
 
 	//wireframe mode
 	//glPolygonMode(GL_FRONT, GL_FILL);
@@ -244,16 +292,23 @@ int main() {
 		switch (objectToDraw)
 		{
 		case quad:
-			glBindVertexArray(quadElementBufferObject);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertexData), quadVertexData, GL_STATIC_DRAW);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_STATIC_DRAW);
+			indiciesCount = 6;
 			break;
 		case triforce:
-			glBindVertexArray(triforceElementBufferObject);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(triforceVertexData), triforceVertexData, GL_STATIC_DRAW);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(triforceIndices), triforceIndices, GL_STATIC_DRAW);
+			indiciesCount = 9;
 			break;
 		case strip:
-			//glBindVertexArray(stripElementBufferObject);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(stripVertexData), stripVertexData, GL_STATIC_DRAW);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(stripIndices), stripIndices, GL_STATIC_DRAW);
+			indiciesCount = 12;
 			break;
 		};
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		glDrawElements(GL_TRIANGLES, indiciesCount, GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -265,21 +320,24 @@ int main() {
 
 void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	if (key == GLFW_KEY_W && GLFW_PRESS)
+	if (key == GLFW_KEY_W && action == GLFW_PRESS)
 	{
 		printf("pressed w\n");
 		wireFrame = !wireFrame;
 	}
-	if (key == GLFW_KEY_1 && GLFW_PRESS)
+	if (key == GLFW_KEY_1 && action == GLFW_PRESS)
 	{
+		printf("pressed 1\n");
 		objectToDraw = quad;
 	}
-	if (key == GLFW_KEY_2 && GLFW_PRESS)
+	if (key == GLFW_KEY_2 && action == GLFW_PRESS)
 	{
+		printf("pressed 2\n");
 		objectToDraw = triforce;
 	}
-	if (key == GLFW_KEY_3 && GLFW_PRESS)
+	if (key == GLFW_KEY_3 && action == GLFW_PRESS)
 	{
+		printf("pressed 3\n");
 		objectToDraw = strip;
 	}
 }
