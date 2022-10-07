@@ -1,6 +1,8 @@
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
+#include <iostream>
 
+#include <string>
 #include <stdio.h>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -11,19 +13,51 @@
 void resizeFrameBufferCallback(GLFWwindow* window, int width, int height);
 void keyboardCallback(GLFWwindow* window, int keycode, int scancode, int action, int mods);
 
+//automatically do the legwork to make textures
+GLuint generateTexture(std::string inputTexture)
+{
+	//generate texture
+	GLuint output;
+	glGenTextures(1, &output);
+	//bind texture to GL_TEXTURE_2D to make it into a 2D texture
+	glBindTexture(GL_TEXTURE_2D, output);
+
+	int width, height, numComponents;
+	unsigned char* textureData = stbi_load(inputTexture.c_str(), &width, &height, &numComponents, 0);
+
+	std::cout << numComponents;
+
+	if (!textureData) printf("Failed to load file");
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
+
+	return output;
+}
+
 //Full screen quad
 const float vertexData[] = {
 	//x      y      z	 r     g    b    a    s    t  
-	-0.5,  -0.5,  0.0,  1.0, 1.0, 1.0, 1.0, 0.0, 0.0,	//bottom left
-	 0.5,  -0.5,  0.0,  1.0, 1.0, 1.0, 1.0,	1.0, 0.0,	//bottom right
-	 0.5,   0.5,  0.0,  1.0, 1.0, 1.0, 1.0,	1.0, 1.0,	//top right
-	 -0.5,  0.5,  0.0,  1.0, 1.0, 1.0, 1.0,	0.0, 1.0,	//top left
+	-1.0,  -1.0,  0.0,  1.0, 1.0, 1.0, 1.0, 0.0, 0.0,	//bottom left
+	 1.0,  -1.0,  0.0,  1.0, 1.0, 1.0, 1.0,	1.0, 0.0,	//bottom right
+	 1.0,   1.0,  0.0,  1.0, 1.0, 1.0, 1.0,	1.0, 1.0,	//top right
+	-1.0,   1.0,  0.0,  1.0, 1.0, 1.0, 1.0,	0.0, 1.0,	//top left
 };
 
 const unsigned int indices[] = {
 	0, 1, 2,
 	2, 3, 0
 };
+
+const std::string backgroundImage = "textures/background.jpg";
+const std::string noiseImage = "textures/noise.jpg";
+const std::string characterImage = "textures/bigPixil.jpg";
 
 int main() {
 	if (!glfwInit()) {
@@ -46,27 +80,9 @@ int main() {
 
 	stbi_set_flip_vertically_on_load(true);
 
-	//----------Create function that does this, this is way too much typing----------
-	//generate texture
-	GLuint texture;
-	glGenTextures(1, &texture);
-	//bind texture to GL_TEXTURE_2D to make it into a 2D texture
-	glBindTexture(GL_TEXTURE_2D, texture);
-
-	int width, height, numComponents;
-	unsigned char* textureData = stbi_load("textures/brick_wall_texture.jpg", &width, &height, &numComponents,0);
-
-	if (!textureData) printf("Failed to load file");
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
-	//---------------------End of part to rewrite into function----------------------
+	GLuint backgroundTexture = generateTexture(backgroundImage);
+	GLuint noiseTexture = generateTexture(noiseImage);
+	GLuint characterTexture = generateTexture(characterImage);
 
 	GLuint VAO;
 	glGenVertexArrays(1, &VAO);
@@ -113,7 +129,9 @@ int main() {
 		shader.setFloat("iTime", time);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		glBindTexture(GL_TEXTURE_2D, backgroundTexture);
+		//glBindTexture(GL_TEXTURE_2D, noiseTexture);
+		//glBindTexture(GL_TEXTURE_2D, characterTexture);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
