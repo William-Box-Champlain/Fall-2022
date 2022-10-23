@@ -245,7 +245,9 @@ void selectionSort(T list[], int size)
 		}
 		if (minIndex != i)
 		{
-			swap(list[i], list[minIndex]);
+			temp = list[i];
+			list[i] = list[minIndex];
+			list[minIndex] = temp;
 		}
 	}
 }

@@ -1,9 +1,9 @@
 /*
 Author: William Box
 Class: CSI-281-01
-Assignment: PA 2
-Date Assigned: Sept 16
-Due Date: Sept 20 13:00
+Assignment: PA 2 - Part 4
+Date Assigned: Sept 27
+Due Date: Oct 4th 11:59 PM
 Description:
 
 Main file used to test the functions written within sortingFunctions.h
@@ -29,7 +29,8 @@ enum numberList
 {
     average,
     best,
-    worst
+    worst,
+    all
 };
 
 enum sortType
@@ -39,67 +40,100 @@ enum sortType
     selection,
     shell,
     mergee,
-    quick
+    quick,
+    last
 };
 
-void testSort(int listLength, sortType sortType, numberList numberList)
+/*
+* Pre: requires a file loaded with ints to be created, and the name of the file to be stored in a string array (so that multiple files may be used)
+* Post: outputs the time it took to perform a sorting operation with a list of listLength ints and a list type of numberList using a sorting algorithm of sortType
+* Purpose: sort an array with the selection-sort algorithm
+*/
+void testSort(int listLength, sortType sortType, std::string files[], int iterations)
 {
-    const std::string fullRandom = "testNumbers";
-    const std::string assendingNumbers = "sortedNumbers";
-    const std::string descendingNumbers = "reverseSortedNumbers";
-
+    
     Generator testGenerator;
     TimerSystem timer;
 
     int* list = new int[listLength];
-    switch (numberList)
-    {
-    case average:
-        testGenerator.loadFile(fullRandom, list, listLength);
-        std::cout << "Average case (" << listLength <<" ints)";
-        break;
-    case best:
-        testGenerator.loadFile(assendingNumbers, list, listLength);
-        std::cout << "   Best case (" << listLength << " ints)";
-        break;
-    case worst:
-        testGenerator.loadFile(descendingNumbers, list, listLength);
-        std::cout << "  Worst case (" << listLength << " ints)";
-        break;
-    default:
-        break;
-    }
+    
+    double sum = 0;
+    double time = 0;
+    int i;
+    
     switch (sortType)
     {
     case bubble:
-        timer.startClock();
-        bubbleSort(list, listLength);
-        std::cout << "BubbleSort time: " << timer.getTime() << std::endl;
+        for (i = 0; i < iterations; i++)
+        {
+            testGenerator.loadFile(files[i], list, listLength);
+            timer.startClock();
+            bubbleSort(list, listLength);
+            time = timer.getTime();
+            sum += time;
+            std::cout << "Iteration " << i << " completed in " << time << " seconds." << std::endl;
+        }
+        std::cout << "bubbleSort time (average over " << iterations << " iterations): " << sum/iterations << std::endl;
         break;
     case insertion:
-        timer.startClock();
-        insertionSort(list, listLength);
-        std::cout << "InsertionSort time: " << timer.getTime() << std::endl;
+        for (i = 0; i < iterations; i++)
+        {
+            testGenerator.loadFile(files[i], list, listLength);
+            timer.startClock();
+            insertionSort(list, listLength);
+            time = timer.getTime();
+            sum += time;
+            std::cout << "Iteration " << i << " completed in " << time << " seconds." << std::endl;
+        }
+        std::cout << "insertionSort time (average over " << iterations << " iterations): " << sum / iterations << std::endl;
         break;
     case selection:
-        timer.startClock();
-        selectionSort(list,listLength);
-        std::cout << "SelectionSort time: " << timer.getTime() << std::endl;
+        for (i = 0; i < iterations; i++)
+        {
+            testGenerator.loadFile(files[i], list, listLength);
+            timer.startClock();
+            selectionSort(list, listLength);
+            time = timer.getTime();
+            sum += time;
+            std::cout << "Iteration " << i << " completed in " << time << " seconds." << std::endl;
+        }
+        std::cout << "selectionSort time (average over " << iterations << " iterations): " << sum / iterations << std::endl;
         break;
     case shell:
-        timer.startClock();
-        shellSort(list, listLength);
-        std::cout << "ShellSort time: " << timer.getTime() << std::endl;
+        for (i = 0; i < iterations; i++)
+        {
+            testGenerator.loadFile(files[i], list, listLength);
+            timer.startClock();
+            shellSort(list, listLength);
+            time = timer.getTime();
+            sum += time;
+            std::cout << "Iteration " << i << " completed in " << time << " seconds." << std::endl;
+        }
+        std::cout << "shellSort time (average over " << iterations << " iterations): " << sum / iterations << std::endl;
         break;
     case mergee:
-        timer.startClock();
-        mergeSort(list, 0, listLength-1);
-        std::cout << "MergeSort time: " << timer.getTime() << std::endl;
+        for (i = 0; i < iterations; i++)
+        {
+            testGenerator.loadFile(files[i], list, listLength);
+            timer.startClock();
+            mergeSort(list, 0, listLength - 1);
+            time = timer.getTime();
+            sum += time;
+            std::cout << "Iteration " << i << " completed in " << time << " seconds." << std::endl;
+        }
+        std::cout << "mergeSort time (average over " << iterations << " iterations): " << sum / iterations << std::endl;
         break;
     case quick:
-        timer.startClock();
-        quickSort(list, 0, listLength-1);
-        std::cout << "QuickSort time: " << timer.getTime() << std::endl;
+        for (i = 0; i < iterations; i++)
+        {
+            testGenerator.loadFile(files[i], list, listLength);
+            timer.startClock();
+            quickSort(list, 0, listLength - 1);
+            time = timer.getTime();
+            sum += time;
+            std::cout << "Iteration " << i << " completed in " << time << " seconds." << std::endl;
+        }
+        std::cout << "quickSort time (average over " << iterations << " iterations): " << sum / iterations << std::endl;
         break;
     default:
         break;
@@ -109,90 +143,85 @@ void testSort(int listLength, sortType sortType, numberList numberList)
 
 int main()
 {
-    
 
-    //Generator generator;
-    //int length = 1000000;
-    //int arraySize = 1000000;
-    //int* numbers = new int[arraySize];
+    Generator generator;
+    int length = 1000000;
+    int arraySize = 1000000;
+    int iterations = 3;
+    int* numbers = new int[arraySize];
 
-    ////short tests
-    //int shortList = 100;
-    //
-    ////sort shortArray
+    std::string baseNumberLists[] = { "testNumbers0","testNumbers1","testNumbers2" };
+    std::string sortedNumberLists[] = { "sortedNumbers0","sortedNumbers1","sortedNumbers2" };
+    std::string reverseSortedNumberLists[] = { "reverseSortedNumbers0","reverseSortedNumbers1","reverseSortedNumbers2" };
 
-    ////medium tests
+    for (int i = 0; i < iterations; i++)
+    {
+        generator.createFile(baseNumberLists[i], length);
+    }
 
-    //generator.createFile("testNumbers",length);
-    //generator.loadFile("testNumbers",numbers,arraySize);
-    //mergeSort(numbers, 0, arraySize-1);
-    //generator.outputArray("sortedNumbers", numbers, arraySize);
-    //generator.outputReversedArray("reverseSortedNumbers", numbers, arraySize);
-
-    //delete[] numbers;
-
-    std::cout << "short tests (100 ints): " << std::endl;
+    for (int i = 0; i < iterations; i++)
+    {
+        generator.loadFile(baseNumberLists[i], numbers, arraySize);
+        mergeSort(numbers, 0, arraySize - 1);
+        generator.outputArray(sortedNumberLists[i], numbers, arraySize);
+        generator.outputReversedArray(reverseSortedNumberLists[i], numbers, arraySize);
+    }
+    std::cout << "average case scenarios" << std::endl;
     int testLength = 100;
-    testSort(testLength, bubble, average);
-    testSort(testLength, bubble, best);
-    testSort(testLength, bubble, worst);
-    testSort(testLength, insertion, average);
-    testSort(testLength, insertion, best);
-    testSort(testLength, insertion, worst);
-    testSort(testLength, selection, average);
-    testSort(testLength, selection, best);
-    testSort(testLength, selection, worst);
-    testSort(testLength, shell, average);
-    testSort(testLength, shell, best);
-    testSort(testLength, shell, worst);
-    testSort(testLength, mergee, average);
-    testSort(testLength, mergee, best);
-    testSort(testLength, mergee, worst);
-    testSort(testLength, quick, average);
-    testSort(testLength, quick, best);
-    testSort(testLength, quick, worst);
-
-    std::cout << "medium tests (10,000 ints): " << std::endl;
+    std::cout << "short (100 ints)" << std::endl;
+    for (int sortTypeInt = bubble; sortTypeInt != last; sortTypeInt++)
+    {
+        testSort(testLength, static_cast<sortType>(sortTypeInt), baseNumberLists, iterations);
+    }
     testLength = 10000;
-    testSort(testLength, bubble, average);
-    testSort(testLength, bubble, best);
-    testSort(testLength, bubble, worst);
-    testSort(testLength, insertion, average);
-    testSort(testLength, insertion, best);
-    testSort(testLength, insertion, worst);
-    testSort(testLength, selection, average);
-    testSort(testLength, selection, best);
-    testSort(testLength, selection, worst);
-    testSort(testLength, shell, average);
-    testSort(testLength, shell, best);
-    testSort(testLength, shell, worst);
-    testSort(testLength, mergee, average);
-    testSort(testLength, mergee, best);
-    testSort(testLength, mergee, worst);
-    testSort(testLength, quick, average);
-    testSort(testLength, quick, best);
-    testSort(testLength, quick, worst);
-
-    std::cout << "long tests (750,000 ints): " << std::endl;
+    std::cout << "medium (10,000 ints)" << std::endl;
+    for (int sortTypeInt = bubble; sortTypeInt != last; sortTypeInt++)
+    {
+        testSort(testLength, static_cast<sortType>(sortTypeInt), baseNumberLists, iterations);
+    }
     testLength = 750000;
-    testSort(testLength, bubble, average);
-    testSort(testLength, bubble, best);
-    testSort(testLength, bubble, worst);
-    testSort(testLength, insertion, average);
-    testSort(testLength, insertion, best);
-    testSort(testLength, insertion, worst);
-    testSort(testLength, selection, average);
-    testSort(testLength, selection, best);
-    testSort(testLength, selection, worst);
-    testSort(testLength, shell, average);
-    testSort(testLength, shell, best);
-    testSort(testLength, shell, worst);
-    testSort(testLength, mergee, average);
-    testSort(testLength, mergee, best);
-    testSort(testLength, mergee, worst);
-    testSort(testLength, quick, average);
-    testSort(testLength, quick, best);
-    testSort(testLength, quick, worst);
-
+    std::cout << "long (750,000 ints)" << std::endl;
+    for (int sortTypeInt = bubble; sortTypeInt != last; sortTypeInt++)
+    {
+        testSort(testLength, static_cast<sortType>(sortTypeInt), baseNumberLists, iterations);
+    }
+    std::cout << "best case scenarios" << std::endl;
+    testLength = 100;
+    std::cout << "short (100 ints)" << std::endl;
+    for (int sortTypeInt = bubble; sortTypeInt != last; sortTypeInt++)
+    {
+        testSort(testLength, static_cast<sortType>(sortTypeInt), sortedNumberLists, iterations);
+    }
+    testLength = 10000;
+    std::cout << "medium (10,000 ints)" << std::endl;
+    for (int sortTypeInt = bubble; sortTypeInt != last; sortTypeInt++)
+    {
+        testSort(testLength, static_cast<sortType>(sortTypeInt), sortedNumberLists, iterations);
+    }
+    testLength = 750000;
+    std::cout << "long (750,000 ints)" << std::endl;
+    for (int sortTypeInt = bubble; sortTypeInt != last; sortTypeInt++)
+    {
+        testSort(testLength, static_cast<sortType>(sortTypeInt), sortedNumberLists, iterations);
+    }
+    std::cout << "worst case scenarios" << std::endl;
+    testLength = 100;
+    std::cout << "short (100 ints)" << std::endl;
+    for (int sortTypeInt = bubble; sortTypeInt != last; sortTypeInt++)
+    {
+        testSort(testLength, static_cast<sortType>(sortTypeInt), reverseSortedNumberLists, iterations);
+    }
+    testLength = 10000;
+    std::cout << "medium (10,000 ints)" << std::endl;
+    for (int sortTypeInt = bubble; sortTypeInt != last; sortTypeInt++)
+    {
+        testSort(testLength, static_cast<sortType>(sortTypeInt), reverseSortedNumberLists, iterations);
+    }
+    testLength = 750000;
+    std::cout << "long (750,000 ints)" << std::endl;
+    for (int sortTypeInt = bubble; sortTypeInt != last; sortTypeInt++)
+    {
+        testSort(testLength, static_cast<sortType>(sortTypeInt), reverseSortedNumberLists, iterations);
+    }
     return 0;
 }

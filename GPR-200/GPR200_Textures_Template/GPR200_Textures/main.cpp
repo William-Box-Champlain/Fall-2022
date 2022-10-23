@@ -14,7 +14,7 @@ void resizeFrameBufferCallback(GLFWwindow* window, int width, int height);
 void keyboardCallback(GLFWwindow* window, int keycode, int scancode, int action, int mods);
 
 //automatically do the legwork to make textures
-GLuint generateTexture(std::string inputTexture)
+GLuint generateTexture(std::string inputTexture, GLint param = GL_LINEAR, GLint format = GL_RGB)
 {
 	//generate texture
 	GLuint output;
@@ -25,29 +25,36 @@ GLuint generateTexture(std::string inputTexture)
 	int width, height, numComponents;
 	unsigned char* textureData = stbi_load(inputTexture.c_str(), &width, &height, &numComponents, 0);
 
-	std::cout << numComponents;
-
 	if (!textureData) printf("Failed to load file");
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, param);
 
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, textureData);
 
 	return output;
 }
 
 //Full screen quad
-const float vertexData[] = {
+const float backgroundVertexData[] = {
 	//x      y      z	 r     g    b    a    s    t  
 	-1.0,  -1.0,  0.0,  1.0, 1.0, 1.0, 1.0, 0.0, 0.0,	//bottom left
 	 1.0,  -1.0,  0.0,  1.0, 1.0, 1.0, 1.0,	1.0, 0.0,	//bottom right
 	 1.0,   1.0,  0.0,  1.0, 1.0, 1.0, 1.0,	1.0, 1.0,	//top right
 	-1.0,   1.0,  0.0,  1.0, 1.0, 1.0, 1.0,	0.0, 1.0,	//top left
+};
+
+//Character quad
+const float characterVertexData[] = {
+	//x      y      z	 r     g    b    a    s    t  
+	-0.5,  -0.5,  0.0,  1.0, 1.0, 1.0, 1.0, 0.0, 0.0,	//bottom left
+	 0.5,  -0.5,  0.0,  1.0, 1.0, 1.0, 1.0,	1.0, 0.0,	//bottom right
+	 0.5,   0.5,  0.0,  1.0, 1.0, 1.0, 1.0,	1.0, 1.0,	//top right
+	-0.5,   0.5,  0.0,  1.0, 1.0, 1.0, 1.0,	0.0, 1.0,	//top left
 };
 
 const unsigned int indices[] = {
@@ -57,7 +64,7 @@ const unsigned int indices[] = {
 
 const std::string backgroundImage = "textures/background.jpg";
 const std::string noiseImage = "textures/noise.jpg";
-const std::string characterImage = "textures/bigPixil.jpg";
+const std::string characterImage = "textures/Furby.png";
 
 int main() {
 	if (!glfwInit()) {
@@ -76,13 +83,15 @@ int main() {
 	glfwSetFramebufferSizeCallback(window, resizeFrameBufferCallback);
 	glfwSetKeyCallback(window, keyboardCallback);
 
-	Shader shader("shaders/vertexShader.vert", "shaders/fragmentShader.frag");
+	Shader backgroundShader("shaders/vertexShader.vert", "shaders/fragmentShader.frag");
+	Shader characterShader("shaders/characterVertexShader.vert", "shaders/characterFragmentShader.frag");
+
 
 	stbi_set_flip_vertically_on_load(true);
 
 	GLuint backgroundTexture = generateTexture(backgroundImage);
 	GLuint noiseTexture = generateTexture(noiseImage);
-	GLuint characterTexture = generateTexture(characterImage);
+	GLuint characterTexture = generateTexture(characterImage, GL_NEAREST, GL_RGBA);
 
 	GLuint VAO;
 	glGenVertexArrays(1, &VAO);
@@ -91,7 +100,7 @@ int main() {
 	GLuint VBO;
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), &vertexData, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(backgroundVertexData), &backgroundVertexData, GL_STATIC_DRAW);
 
 	GLuint EBO;
 	glGenBuffers(1, &EBO);
@@ -125,13 +134,31 @@ int main() {
 
 		float time = (float)glfwGetTime();
 
-		shader.use();
-		shader.setFloat("iTime", time);
+		backgroundShader.use();
+		backgroundShader.setFloat("iTime", time);
+
+		//set texture uniforms
+		glActiveTexture(GL_TEXTURE0 + 0);
+		glBindTexture(GL_TEXTURE_2D, backgroundTexture);
+		glActiveTexture(GL_TEXTURE0 + 1);
+		glBindTexture(GL_TEXTURE_2D, noiseTexture);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, backgroundTexture);
-		//glBindTexture(GL_TEXTURE_2D, noiseTexture);
-		//glBindTexture(GL_TEXTURE_2D, characterTexture);
+
+		backgroundShader.setInt("iTexture", 0);
+		backgroundShader.setInt("iNoiseTexture", 1);
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		characterShader.use();
+		characterShader.setFloat("iTime", time);
+
+		glActiveTexture(GL_TEXTURE0 + 2);
+		glBindTexture(GL_TEXTURE_2D, characterTexture);
+
+		glActiveTexture(GL_TEXTURE0 + 2);
+
+		characterShader.setInt("iTexture", 2);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

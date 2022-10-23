@@ -6,8 +6,11 @@ layout (location = 2) in vec2 in_TexCoords;
 out vec4 Color;
 out vec2 TexCoords;
 
+out vec2 CharCoords;
+
 void main(){
     Color = in_Color;
     TexCoords = in_TexCoords;
+    CharCoords = in_TexCoords;
     gl_Position = vec4(in_Pos,1.0);    
 }
