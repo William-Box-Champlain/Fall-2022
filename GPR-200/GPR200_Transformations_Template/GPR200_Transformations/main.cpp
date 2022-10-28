@@ -15,6 +15,8 @@
 
 #include "Shader.h"
 
+transform boxTransform;
+
 void processInput(GLFWwindow* window);
 void resizeFrameBufferCallback(GLFWwindow* window, int width, int height);
 void keyboardCallback(GLFWwindow* window, int keycode, int scancode, int action, int mods);
@@ -68,8 +70,8 @@ float cubeVertexData[] = {
 float prevTime;
 float deltaTime;
 
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 640;
+const int SCREEN_WIDTH = 1280;
+const int SCREEN_HEIGHT = 1280;
 
 int main() {
 	if (!glfwInit()) {
@@ -120,6 +122,13 @@ int main() {
 	//Only render if closer to camera
 	glDepthFunc(GL_LESS);
 
+	//set transformation rates on box
+	boxTransform.setRotation(glm::vec3(0.025, 0.025, 0.025));
+	boxTransform.setScale(0.1);
+	boxTransform.setTranslation(glm::vec3(0.1, 0.1, 0.1));
+
+	glm::mat4 viewMatrix = wb::ortho(SCREEN_HEIGHT, SCREEN_HEIGHT / SCREEN_WIDTH, 0.1, 100);
+
 	while (!glfwWindowShouldClose(window)) {
 		processInput(window);
 		glClearColor(0.2f, 0.3f, 0.6f, 1.0f);
@@ -130,10 +139,14 @@ int main() {
 		deltaTime = time - prevTime;
 		prevTime = time;
 
+		std::cout << deltaTime << std::endl;
+
 		shader.use();
 
 		shader.setInt("iTexture", 0);
 		shader.setFloat("iTime", time);
+		shader.setMat4("iTransform", boxTransform.getTransform(deltaTime));
+		shader.setMat4("iView", viewMatrix);
 
 		//TODO: Transform cube using uniform
 
@@ -154,15 +167,67 @@ void resizeFrameBufferCallback(GLFWwindow* window, int width, int height)
 void keyboardCallback(GLFWwindow* window, int keycode, int scancode, int action, int mods)
 {
 	//TODO: Reset transform when R is pressed
-	if (keycode == GLFW_KEY_R && action == GLFW_PRESS) transformationMatrix;
+	if (keycode == GLFW_KEY_R && action == GLFW_PRESS) boxTransform.reset();
 }
 
-void processInput(GLFWwindow* window) 
+void processInput(GLFWwindow* window)
 {
-	//TODO: Change position, rotation, scale using input
-	
-}
 
+	//TODO: Change position, rotation, scale using input
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) 
+	{
+		boxTransform.rotate(cwY);
+	}
+	else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		boxTransform.rotate(ccY);
+	}
+
+	else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		boxTransform.rotate(cwX);
+	}
+	else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		boxTransform.rotate(ccX);
+	}
+
+	else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+	{
+		boxTransform.rotate(cwZ);
+	}
+	else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+	{
+		boxTransform.rotate(ccZ);
+	}
+
+	else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	{
+		boxTransform.translate(right);
+	}
+	else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	{
+		boxTransform.translate(left);
+	}
+
+	else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	{
+		boxTransform.translate(up);
+	}
+	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	{
+		boxTransform.translate(down);
+	}
+
+	else if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+	{
+		boxTransform.scale(grow);
+	}
+	else if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+	{
+		boxTransform.scale(shrink);
+	}
+}
 GLuint loadTexture(const char* filePath)
 {
 	GLuint texture;
