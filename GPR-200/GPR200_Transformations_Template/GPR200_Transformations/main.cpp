@@ -127,7 +127,13 @@ int main() {
 	boxTransform.setScale(0.1);
 	boxTransform.setTranslation(glm::vec3(0.1, 0.1, 0.1));
 
-	glm::mat4 viewMatrix = wb::ortho(SCREEN_HEIGHT, SCREEN_HEIGHT / SCREEN_WIDTH, 0.1, 100);
+	float fov = 100;
+	float nearPlane = 0.1;
+	float farPlane = 100;
+	float aspectRatio = SCREEN_HEIGHT / SCREEN_WIDTH;
+
+	glm::mat4 perspectiveMatrix = wb::perspective(fov, aspectRatio, nearPlane, farPlane);
+	glm::mat4 orthoMatrix = wb::ortho(SCREEN_HEIGHT, aspectRatio, nearPlane, farPlane);
 
 	while (!glfwWindowShouldClose(window)) {
 		processInput(window);
@@ -147,6 +153,7 @@ int main() {
 		shader.setFloat("iTime", time);
 		shader.setMat4("iTransform", boxTransform.getTransform(deltaTime));
 		shader.setMat4("iView", viewMatrix);
+		shader.setMat4("iProjection", perspectiveMatrix);
 
 		//TODO: Transform cube using uniform
 
