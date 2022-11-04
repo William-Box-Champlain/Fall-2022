@@ -1,14 +1,23 @@
 #include "camera.h"
 camera::camera()
 {
-	mPosition = transform();
+	mSensitivity = 1.0;
+	mYaw = 0.0;
+	mPitch = 0.0;
+	mOldMousePosition = glm::vec2(0, 0);
+	mCamPos = glm::vec3(0, 0, 0);
 	mCamForward = glm::vec3(0.0);
 	mCamRight = glm::vec3(0.0);
 	mCamUp = glm::vec3(0.0);
 }
 
-camera::camera(float yaw, float pitch, glm::vec3 worldUp) //yaw and pitch are in radians
+camera::camera(glm::vec3 startingPosition, float sensitivity, float yaw, float pitch, glm::vec3 worldUp) //yaw and pitch are in radians
 {
+	mSensitivity = sensitivity;
+	mYaw = yaw;
+	mPitch = pitch;
+	mOldMousePosition = glm::vec2(0, 0);
+	mCamPos = startingPosition;
 	setForwardRightUp(yaw, pitch, worldUp);
 }
 
@@ -29,19 +38,32 @@ float camera::getPitch()
 	return mPitch;
 }
 
-float camera::addYaw(float yaw)
+void camera::addYaw(float yaw)
 {
 	mYaw += yaw;
 }
 
 void camera::addPitch(float pitch)
 {
-	mPitch += pitch
+	mPitch += pitch;
 }
 
 void camera::update(glm::vec2 cursorPosition)
 {
+	glm::vec2 mousePosDelta = cursorPosition - mOldMousePosition;
+	addYaw(mousePosDelta.x);
+	addPitch(-1 * mousePosDelta.y);
+	getForward(mYaw, mPitch);
+}
 
+glm::vec3 camera::getCameraPosition()
+{
+	return mCamPos;
+}
+
+glm::vec3 camera::getTargetPosition()
+{
+	return mCamPos + mCamForward;
 }
 
 float camera::clampValue(float min, float max, float value)
@@ -61,11 +83,11 @@ glm::vec3 camera::getForward(float yaw, float pitch) //yaw and pitch are in radi
 	float max = glm::pi<float>() / 2;
 
 
-	localYaw = clampValue(min, max, yaw);
+	localYaw = yaw;
 	localPitch = clampValue(min, max, pitch);
 
 
-	camForward.x = glm::cos(localYaw) * glm::sin(localPitch);
+	camForward.x = glm::cos(localYaw) * glm::cos(localPitch);
 	camForward.y = glm::sin(localPitch);
 	camForward.z = glm::sin(localYaw) * glm::cos(localPitch);
 

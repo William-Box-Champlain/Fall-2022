@@ -1,6 +1,7 @@
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
+#include "camera.h"
 #include "Transformations.h"
 
 //#include <glm/glm.hpp>
@@ -16,6 +17,7 @@
 #include "Shader.h"
 
 transform boxTransform;
+camera sceneCamera;
 
 void processInput(GLFWwindow* window);
 void resizeFrameBufferCallback(GLFWwindow* window, int width, int height);
@@ -110,7 +112,7 @@ int main() {
 	glEnableVertexAttribArray(1);
 	
 	//Enable back-face culling
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
 	//Enable blending
@@ -127,6 +129,7 @@ int main() {
 	boxTransform.setScale(0.1);
 	boxTransform.setTranslation(glm::vec3(0.1, 0.1, 0.1));
 
+	//generate projection matricies
 	float fov = 100;
 	float nearPlane = 0.1;
 	float farPlane = 100;
@@ -134,6 +137,20 @@ int main() {
 
 	glm::mat4 perspectiveMatrix = wb::perspective(fov, aspectRatio, nearPlane, farPlane);
 	glm::mat4 orthoMatrix = wb::ortho(SCREEN_HEIGHT, aspectRatio, nearPlane, farPlane);
+
+	//generate camera stuff
+	float sensitivity = 1.0;
+	float yaw = glm::radians<float>(-90);
+	float pitch = glm::radians<float>(0);
+	glm::vec3 startingPosition = glm::vec3(0, 0, 2);
+	glm::vec3 worldUp = glm::vec3(0, 1, 0);
+
+	sceneCamera = camera(startingPosition, sensitivity, yaw, pitch, worldUp);
+
+	//create view matrix
+	glm::mat4 viewMatrix = wb::lookAt(sceneCamera.getCameraPosition(), sceneCamera.getTargetPosition(), worldUp);
+
+	glm::mat4 totalMatrix;
 
 	while (!glfwWindowShouldClose(window)) {
 		processInput(window);
@@ -147,13 +164,17 @@ int main() {
 
 		std::cout << deltaTime << std::endl;
 
-		shader.use();
+		//iProjection* iView* iTransform* vec4(in_Pos, 1.0)
+		totalMatrix = orthoMatrix * viewMatrix * boxTransform.getTransform(deltaTime);
 
+		shader.use();
+		
 		shader.setInt("iTexture", 0);
 		shader.setFloat("iTime", time);
-		shader.setMat4("iTransform", boxTransform.getTransform(deltaTime));
+		/*shader.setMat4("iTransform", boxTransform.getTransform(deltaTime));
 		shader.setMat4("iView", viewMatrix);
-		shader.setMat4("iProjection", perspectiveMatrix);
+		shader.setMat4("iProjection", perspectiveMatrix);*/
+		shader.setMat4("iTotal", totalMatrix);
 
 		//TODO: Transform cube using uniform
 
