@@ -6,6 +6,7 @@ camera::camera()
 	mPitch = 0.0;
 	mOldMousePosition = glm::vec2(0, 0);
 	mCamPos = glm::vec3(0, 0, 0);
+	mWorldUp = glm::vec3(0,0,0);
 	mCamForward = glm::vec3(0.0);
 	mCamRight = glm::vec3(0.0);
 	mCamUp = glm::vec3(0.0);
@@ -18,6 +19,7 @@ camera::camera(glm::vec3 startingPosition, float sensitivity, float yaw, float p
 	mPitch = pitch;
 	mOldMousePosition = glm::vec2(0, 0);
 	mCamPos = startingPosition;
+	mWorldUp = worldUp;
 	setForwardRightUp(yaw, pitch, worldUp);
 }
 
@@ -46,14 +48,22 @@ void camera::addYaw(float yaw)
 void camera::addPitch(float pitch)
 {
 	mPitch += pitch;
+
+	float min = -1*glm::pi<float>() / 2;
+	float max = glm::pi<float>() / 2;
+
+	mPitch = clampValue(min, max, mPitch);
 }
 
-void camera::update(glm::vec2 cursorPosition)
+void camera::point(glm::vec2 cursorPosition,glm::vec3 worldUp)
 {
 	glm::vec2 mousePosDelta = cursorPosition - mOldMousePosition;
-	addYaw(mousePosDelta.x);
-	addPitch(-1 * mousePosDelta.y);
-	getForward(mYaw, mPitch);
+	mOldMousePosition = cursorPosition;
+	addYaw(mousePosDelta.x * mSensitivity);
+	addPitch(-1 * mousePosDelta.y * mSensitivity);
+	mCamForward = getForward(mYaw, mPitch);
+	mCamRight = getRight(mCamForward, worldUp);
+	mCamUp = getUp(mCamRight, mCamForward);
 }
 
 glm::vec3 camera::getCameraPosition()
@@ -64,6 +74,40 @@ glm::vec3 camera::getCameraPosition()
 glm::vec3 camera::getTargetPosition()
 {
 	return mCamPos + mCamForward;
+}
+
+void camera::move(camDirection dir, float moveSpeed)
+{
+	glm::vec3 directionVector(0);
+
+	glm::vec3 localForward = getForward(mYaw, mPitch);
+	glm::vec3 localRight = getRight(localForward, mWorldUp);
+	glm::vec3 localUp = getUp(localRight, localForward);
+
+	switch (dir)
+	{
+	case camDirection::forward:
+		directionVector += localForward * moveSpeed;
+		break;
+	case camDirection::backwards:
+		directionVector -= localForward * moveSpeed;
+		break;
+	case camDirection::up:
+		directionVector += localUp * moveSpeed;
+		break;
+	case camDirection::down:
+		directionVector -= localUp * moveSpeed;
+		break;
+	case camDirection::left:
+		directionVector -= localRight * moveSpeed;
+		break;
+	case camDirection::right:
+		directionVector += localRight * moveSpeed;
+		break;
+	default:
+		break;
+	}
+	mCamPos += directionVector;
 }
 
 float camera::clampValue(float min, float max, float value)

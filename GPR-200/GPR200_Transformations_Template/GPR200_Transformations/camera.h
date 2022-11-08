@@ -6,6 +6,16 @@
 
 #include <iostream>
 
+enum class camDirection
+{
+	forward,
+	backwards,
+	up,
+	down,
+	left,
+	right,
+};
+
 class camera
 {
 public:
@@ -19,9 +29,11 @@ public:
 	void addYaw(float yaw);
 	void addPitch(float pitch);
 
-	void update(glm::vec2 cursorPosition);
 	glm::vec3 getCameraPosition();
 	glm::vec3 getTargetPosition();
+
+	void move(camDirection dir, float moveSpeed);
+	void point(glm::vec2 cursorPosition, glm::vec3 worldUp);
 
 private:
 
@@ -36,6 +48,8 @@ private:
 	glm::vec3 mCamForward;
 	glm::vec3 mCamRight;
 	glm::vec3 mCamUp;
+
+	glm::vec3 mWorldUp;
 
 	float clampValue(float min, float max, float value);
 

@@ -10,18 +10,31 @@
 //#include <glm/gtc/type_ptr.hpp>
 
 #include <stdio.h>
+#include <random>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 #include "Shader.h"
 
-transform boxTransform;
+glm::vec3 worldUp = glm::vec3(0, 1, 0);
+
+const int TRANSFORM_COUNT = 5;
+
+bool usePerspective = true;
+
+transform boxTransform[TRANSFORM_COUNT];
 camera sceneCamera;
+
+glm::mat4 perspectiveMatrix;
+glm::mat4 orthoMatrix;
 
 void processInput(GLFWwindow* window);
 void resizeFrameBufferCallback(GLFWwindow* window, int width, int height);
 void keyboardCallback(GLFWwindow* window, int keycode, int scancode, int action, int mods);
+void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+void cursorPosCallback(GLFWwindow* window, double xpos, double ypos);
+
 GLuint loadTexture(const char* filePath);
 
 float cubeVertexData[] = {
@@ -75,6 +88,12 @@ float deltaTime;
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 1280;
 
+const float DEFAULT_FOV = 90;
+const float NEAR_PLANE = 0.1;
+const float FAR_PLANE = 100;
+
+projectionMatrix projection = projectionMatrix(DEFAULT_FOV, NEAR_PLANE, FAR_PLANE, SCREEN_WIDTH, SCREEN_HEIGHT);
+
 int main() {
 	if (!glfwInit()) {
 		printf("glfw failed to init");
@@ -91,6 +110,8 @@ int main() {
 
 	glfwSetFramebufferSizeCallback(window, resizeFrameBufferCallback);
 	glfwSetKeyCallback(window, keyboardCallback);
+	glfwSetScrollCallback(window, scrollCallback);
+	glfwSetCursorPosCallback(window, cursorPosCallback);
 
 	Shader shader("shaders/vertexShader.vert", "shaders/fragmentShader.frag");
 
@@ -124,10 +145,35 @@ int main() {
 	//Only render if closer to camera
 	glDepthFunc(GL_LESS);
 
-	//set transformation rates on box
-	boxTransform.setRotation(glm::vec3(0.025, 0.025, 0.025));
-	boxTransform.setScale(0.1);
-	boxTransform.setTranslation(glm::vec3(0.1, 0.1, 0.1));
+	//set random transforms for boxes
+
+	float min =-2.5;
+	float max = 2.5;
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> dist(min, max);
+
+	for (int i = 0; i < TRANSFORM_COUNT; i++)
+	{
+		float scalar = (float)dist(gen);
+
+		float xRotation = (float)dist(gen);
+		float yRotation = (float)dist(gen);
+		float zRotation = (float)dist(gen);
+
+		float xTranslation = (float)dist(gen);
+		float yTranslation = (float)dist(gen);
+		float zTranslation = (float)dist(gen);
+
+		glm::vec3 randomScale = glm::vec3(scalar);
+		glm::vec3 randomRotation = glm::vec3(xRotation,yRotation,zRotation);
+		glm::vec3 randomTranslation = glm::vec3(xTranslation,yTranslation,zTranslation);
+
+		boxTransform[i].mScale = wb::scale(randomScale);
+		boxTransform[i].mRotate = wb::rotateXYZ(randomRotation);
+		boxTransform[i].mTranslate = wb::translate(randomTranslation);
+	}
 
 	//generate projection matricies
 	float fov = 100;
@@ -135,56 +181,71 @@ int main() {
 	float farPlane = 100;
 	float aspectRatio = SCREEN_HEIGHT / SCREEN_WIDTH;
 
-	glm::mat4 perspectiveMatrix = wb::perspective(fov, aspectRatio, nearPlane, farPlane);
-	glm::mat4 orthoMatrix = wb::ortho(SCREEN_HEIGHT, aspectRatio, nearPlane, farPlane);
-
+	perspectiveMatrix = wb::perspective(fov, aspectRatio, nearPlane, farPlane);
+	orthoMatrix = wb::ortho(SCREEN_HEIGHT, aspectRatio, nearPlane, farPlane);
+	
 	//generate camera stuff
-	float sensitivity = 1.0;
+	float sensitivity = 0.005;
 	float yaw = glm::radians<float>(-90);
 	float pitch = glm::radians<float>(0);
-	glm::vec3 startingPosition = glm::vec3(0, 0, 2);
-	glm::vec3 worldUp = glm::vec3(0, 1, 0);
+	glm::vec3 startingPosition = glm::vec3(0, 0, 4);
 
 	sceneCamera = camera(startingPosition, sensitivity, yaw, pitch, worldUp);
 
 	//create view matrix
-	glm::mat4 viewMatrix = wb::lookAt(sceneCamera.getCameraPosition(), sceneCamera.getTargetPosition(), worldUp);
 
 	glm::mat4 totalMatrix;
 
 	while (!glfwWindowShouldClose(window)) {
-		processInput(window);
-		glClearColor(0.2f, 0.3f, 0.6f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		
 		//Timing
 		float time = (float)glfwGetTime();
 		deltaTime = time - prevTime;
 		prevTime = time;
 
-		std::cout << deltaTime << std::endl;
+		processInput(window);
+		glClearColor(0.2f, 0.3f, 0.6f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		//std::cout << deltaTime << std::endl;
+
+		glm::mat4 viewMatrix = wb::lookAt(sceneCamera.getCameraPosition(), sceneCamera.getTargetPosition(), worldUp);
+
+		//update totalMatrix to be drawn
 		//iProjection* iView* iTransform* vec4(in_Pos, 1.0)
-		totalMatrix = orthoMatrix * viewMatrix * boxTransform.getTransform(deltaTime);
+		for (int i = 0; i < TRANSFORM_COUNT; i++)
+		{
+			if (usePerspective)
+			{
+				totalMatrix = projection.perspectiveMatrix * viewMatrix * boxTransform[i].getTransform(deltaTime);
+			}
+			else
+			{
+				totalMatrix = projection.orthoMatrix * viewMatrix * boxTransform[i].getTransform(deltaTime);
+			}
 
-		shader.use();
-		
-		shader.setInt("iTexture", 0);
-		shader.setFloat("iTime", time);
-		/*shader.setMat4("iTransform", boxTransform.getTransform(deltaTime));
-		shader.setMat4("iView", viewMatrix);
-		shader.setMat4("iProjection", perspectiveMatrix);*/
-		shader.setMat4("iTotal", totalMatrix);
+			shader.use();
 
-		//TODO: Transform cube using uniform
+			shader.setInt("iTexture", 0);
+			shader.setFloat("iTime", time);
+			shader.setMat4("iTotal", totalMatrix);
 
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+			//TODO: Transform cube using uniform
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
 	glfwTerminate();
 	return 0;
+}
+
+float clampValue(float min, float max, float value)
+{
+	if (value < min)return min;
+	else if (value > max)return max;
+	else return value;
 }
 
 void resizeFrameBufferCallback(GLFWwindow* window, int width, int height)
@@ -195,66 +256,40 @@ void resizeFrameBufferCallback(GLFWwindow* window, int width, int height)
 void keyboardCallback(GLFWwindow* window, int keycode, int scancode, int action, int mods)
 {
 	//TODO: Reset transform when R is pressed
-	if (keycode == GLFW_KEY_R && action == GLFW_PRESS) boxTransform.reset();
+	if (keycode == GLFW_KEY_1 && action == GLFW_PRESS) usePerspective = true;
+	else if (keycode == GLFW_KEY_2 && action == GLFW_PRESS) usePerspective = false;
+}
+
+void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	float minFov = 0;
+	float maxFov = 180;
+
+	float temp = projection.mFov;
+
+	temp = clampValue(minFov, maxFov, temp + yoffset);
+
+	projection.updateFov(yoffset);
+
+	std::cout << xoffset << " " << yoffset << std::endl;
+}
+
+void cursorPosCallback(GLFWwindow* window, double xpos, double ypos)
+{
+	glm::vec2 cursorPosVec = glm::vec2(xpos, ypos);
+	sceneCamera.point(cursorPosVec, worldUp);
 }
 
 void processInput(GLFWwindow* window)
 {
-
-	//TODO: Change position, rotation, scale using input
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) 
-	{
-		boxTransform.rotate(cwY);
-	}
-	else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-	{
-		boxTransform.rotate(ccY);
-	}
-
-	else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-	{
-		boxTransform.rotate(cwX);
-	}
-	else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-	{
-		boxTransform.rotate(ccX);
-	}
-
-	else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-	{
-		boxTransform.rotate(cwZ);
-	}
-	else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-	{
-		boxTransform.rotate(ccZ);
-	}
-
-	else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-	{
-		boxTransform.translate(right);
-	}
-	else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-	{
-		boxTransform.translate(left);
-	}
-
-	else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-	{
-		boxTransform.translate(up);
-	}
-	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-	{
-		boxTransform.translate(down);
-	}
-
-	else if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-	{
-		boxTransform.scale(grow);
-	}
-	else if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-	{
-		boxTransform.scale(shrink);
-	}
+	float moveSpeed = 0.025;
+	//TODO: move camera using input
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) sceneCamera.move(camDirection::forward,moveSpeed);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) sceneCamera.move(camDirection::backwards,moveSpeed);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) sceneCamera.move(camDirection::left, moveSpeed);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) sceneCamera.move(camDirection::right, moveSpeed);
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) sceneCamera.move(camDirection::up, moveSpeed);
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) sceneCamera.move(camDirection::down, moveSpeed);
 }
 GLuint loadTexture(const char* filePath)
 {

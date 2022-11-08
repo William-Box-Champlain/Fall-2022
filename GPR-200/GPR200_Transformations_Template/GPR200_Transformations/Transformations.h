@@ -6,8 +6,12 @@
 
 #include <iostream>
 
-enum direction
+#include "camera.h"
+
+enum class direction
 {
+	forward,
+	backwards,
 	up,
 	down,
 	left,
@@ -92,6 +96,16 @@ namespace wb
 
 		return rotate;
 
+	}
+
+	glm::mat4 rotateXYZ(glm::vec3 a)
+	{
+		glm::mat4 rotate(1);
+		rotate *= rotateX(a.x);
+		rotate *= rotateY(a.y);
+		rotate *= rotateZ(a.z);
+
+		return rotate;
 	}
 
 	glm::mat4 translate(float x, float y, float z)
@@ -207,9 +221,9 @@ struct transform {
 	void coutTransform()
 	{
 		std::cout << mTransform[0][0];
-		for (size_t i = 0; i < mTransform.length(); i++)
+		for (int i = 0; i < mTransform.length(); i++)
 		{
-			for (size_t j = 0; j < mTransform.length(); j++)
+			for (int j = 0; j < mTransform.length(); j++)
 			{
 				std::cout << mTransform[i][j] << " ";
 			}
@@ -241,16 +255,16 @@ struct transform {
 	{
 		switch (d)
 		{
-		case up:
+		case direction::up:
 			mTranslate *= wb::translate(0, mTranslationRate.y, 0);
 			break;
-		case down:
+		case direction::down:
 			mTranslate *= wb::translate(0, -1*mTranslationRate.y, 0);
 			break;
-		case left:
+		case direction::left:
 			mTranslate *= wb::translate(-1*mTranslationRate.x, 0, 0);
 			break;
-		case right:
+		case direction::right:
 			mTranslate *= wb::translate(mTranslationRate.x, 0, 0);
 			break;
 		default:
@@ -300,4 +314,37 @@ struct transform {
 		}
 	}
 	
+};
+
+struct projectionMatrix
+{
+	float mFov;
+	float mNearPlane;
+	float mFarPlane;
+	float mAspectRatio;
+	int mHeight;
+	int mWidth;
+	
+	glm::mat4 perspectiveMatrix;
+	glm::mat4 orthoMatrix;
+
+	projectionMatrix(float fov, float nearPlane, float farPlane, int width, int height)
+	{
+		mFov = fov;
+		mNearPlane = nearPlane;
+		mFarPlane = farPlane;
+		mHeight = height;
+		mWidth = width;
+		mAspectRatio = width / height;
+
+		perspectiveMatrix = wb::perspective(mFov, mAspectRatio, mNearPlane, mFarPlane);
+		orthoMatrix = wb::ortho(mHeight, mAspectRatio, mNearPlane, mFarPlane);
+	}
+
+	void updateFov(float fovDelta)
+	{
+		mFov += fovDelta;
+
+		perspectiveMatrix = wb::perspective(mFov, mAspectRatio, mNearPlane, mFarPlane);
+	}
 };
