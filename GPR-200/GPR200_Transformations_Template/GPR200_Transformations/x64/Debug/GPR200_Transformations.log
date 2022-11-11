@@ -1,6 +1,15 @@
-﻿  main.cpp
-C:\Users\william.box\Documents\GitHub\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\Transformations.h(214,1): warning C4267: 'argument': conversion from 'size_t' to 'glm::mat<4,4,glm::f32,glm::packed_highp>::length_type', possible loss of data
-C:\Users\william.box\Documents\GitHub\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\Transformations.h(214,1): warning C4267: 'argument': conversion from 'size_t' to 'glm::vec<4,float,glm::packed_highp>::length_type', possible loss of data
-C:\Users\william.box\Documents\GitHub\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\main.cpp(129,27): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\william.box\Documents\GitHub\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\main.cpp(134,23): warning C4305: 'initializing': truncation from 'double' to 'float'
-  GPR200_Transformations.vcxproj -> C:\Users\william.box\Documents\GitHub\Fall-2022\GPR-200\GPR200_Transformations_Template\x64\Debug\GPR200_Transformations.exe
+﻿  camera.cpp
+  main.cpp
+C:\Users\willb\source\repos\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\Transformations.h(338,24): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\willb\source\repos\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\Transformations.h(341,27): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\willb\source\repos\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\main.cpp(92,29): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\willb\source\repos\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\main.cpp(182,23): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\willb\source\repos\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\main.cpp(190,26): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\willb\source\repos\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\main.cpp(273,41): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\willb\source\repos\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\main.cpp(275,23): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\willb\source\repos\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\main.cpp(288,25): warning C4305: 'initializing': truncation from 'double' to 'float'
+  Generating Code...
+glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  GPR200_Transformations.vcxproj -> C:\Users\willb\source\repos\Fall-2022\GPR-200\GPR200_Transformations_Template\x64\Debug\GPR200_Transformations.exe

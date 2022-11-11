@@ -48,19 +48,14 @@ void camera::addYaw(float yaw)
 void camera::addPitch(float pitch)
 {
 	mPitch += pitch;
-
-	float min = -1*glm::pi<float>() / 2;
-	float max = glm::pi<float>() / 2;
-
-	mPitch = clampValue(min, max, mPitch);
 }
 
 void camera::point(glm::vec2 cursorPosition,glm::vec3 worldUp)
 {
 	glm::vec2 mousePosDelta = cursorPosition - mOldMousePosition;
 	mOldMousePosition = cursorPosition;
-	addYaw(mousePosDelta.x * mSensitivity);
-	addPitch(-1 * mousePosDelta.y * mSensitivity);
+	addYaw(-1 * mousePosDelta.x * mSensitivity);
+	addPitch(mousePosDelta.y * mSensitivity);
 	mCamForward = getForward(mYaw, mPitch);
 	mCamRight = getRight(mCamForward, worldUp);
 	mCamUp = getUp(mCamRight, mCamForward);
@@ -127,8 +122,8 @@ glm::vec3 camera::getForward(float yaw, float pitch) //yaw and pitch are in radi
 	float max = glm::pi<float>() / 2;
 
 
-	localYaw = yaw;
-	localPitch = clampValue(min, max, pitch);
+	localYaw = glm::radians(yaw);
+	localPitch = clampValue(min, max, glm::radians(pitch));
 
 
 	camForward.x = glm::cos(localYaw) * glm::cos(localPitch);

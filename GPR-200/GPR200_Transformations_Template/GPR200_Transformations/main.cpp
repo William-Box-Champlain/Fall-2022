@@ -113,6 +113,8 @@ int main() {
 	glfwSetScrollCallback(window, scrollCallback);
 	glfwSetCursorPosCallback(window, cursorPosCallback);
 
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	Shader shader("shaders/vertexShader.vert", "shaders/fragmentShader.frag");
 
 	GLuint texture = loadTexture("textures/Face.png");
@@ -185,7 +187,7 @@ int main() {
 	orthoMatrix = wb::ortho(SCREEN_HEIGHT, aspectRatio, nearPlane, farPlane);
 	
 	//generate camera stuff
-	float sensitivity = 0.005;
+	float sensitivity = 0.05;
 	float yaw = glm::radians<float>(-90);
 	float pitch = glm::radians<float>(0);
 	glm::vec3 startingPosition = glm::vec3(0, 0, 4);
@@ -257,7 +259,8 @@ void keyboardCallback(GLFWwindow* window, int keycode, int scancode, int action,
 {
 	//TODO: Reset transform when R is pressed
 	if (keycode == GLFW_KEY_1 && action == GLFW_PRESS) usePerspective = true;
-	else if (keycode == GLFW_KEY_2 && action == GLFW_PRESS) usePerspective = false;
+	if (keycode == GLFW_KEY_2 && action == GLFW_PRESS) usePerspective = false;
+	if (keycode == GLFW_KEY_ESCAPE && action == GLFW_PRESS)	glfwSetWindowShouldClose(window, true);
 }
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)

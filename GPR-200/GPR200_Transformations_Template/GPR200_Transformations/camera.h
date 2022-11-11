@@ -41,7 +41,7 @@ private:
 
 	glm::vec2 mOldMousePosition;
 	float mSensitivity;
-	//yaw and pitch are in radians
+	//yaw and pitch are in degrees
 	float mYaw;
 	float mPitch;
 
