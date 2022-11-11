@@ -1,15 +1,2 @@
 ﻿  camera.cpp
-  main.cpp
-C:\Users\willb\source\repos\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\Transformations.h(338,24): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\willb\source\repos\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\Transformations.h(341,27): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\willb\source\repos\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\main.cpp(92,29): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\willb\source\repos\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\main.cpp(182,23): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\willb\source\repos\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\main.cpp(190,26): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\willb\source\repos\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\main.cpp(273,41): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\willb\source\repos\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\main.cpp(275,23): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\willb\source\repos\Fall-2022\GPR-200\GPR200_Transformations_Template\GPR200_Transformations\main.cpp(288,25): warning C4305: 'initializing': truncation from 'double' to 'float'
-  Generating Code...
-glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
-  GPR200_Transformations.vcxproj -> C:\Users\willb\source\repos\Fall-2022\GPR-200\GPR200_Transformations_Template\x64\Debug\GPR200_Transformations.exe
+  GPR200_Transformations.vcxproj -> C:\Users\william.box\Documents\GitHub\Fall-2022\GPR-200\GPR200_Transformations_Template\x64\Debug\GPR200_Transformations.exe

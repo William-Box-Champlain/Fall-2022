@@ -1,7 +1,7 @@
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
-#include "camera.h"
+#include "cameraTwo.h"
 #include "Transformations.h"
 
 //#include <glm/glm.hpp>
@@ -24,7 +24,7 @@ const int TRANSFORM_COUNT = 5;
 bool usePerspective = true;
 
 transform boxTransform[TRANSFORM_COUNT];
-camera sceneCamera;
+cameraTwo sceneCamera;
 
 glm::mat4 perspectiveMatrix;
 glm::mat4 orthoMatrix;
@@ -274,7 +274,7 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 
 	projection.updateFov(yoffset);
 
-	std::cout << xoffset << " " << yoffset << std::endl;
+	std::cout << xoffset << " " << yoffset << " " << temp << std::endl;
 }
 
 void cursorPosCallback(GLFWwindow* window, double xpos, double ypos)

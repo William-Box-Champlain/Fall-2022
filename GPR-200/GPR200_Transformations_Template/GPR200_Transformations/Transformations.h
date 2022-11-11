@@ -190,7 +190,7 @@ namespace wb
 		float c = glm::tan(fovRad / 2);
 		glm::mat4 perspectiveMatrix(1);
 		perspectiveMatrix[0][0] = 1 / (aspectRatio * c);
-		perspectiveMatrix[1][1] = c;
+		perspectiveMatrix[1][1] = 1/c;
 		perspectiveMatrix[2][2] = -1 * ((farPlane + nearPlane) / (farPlane - nearPlane));
 		perspectiveMatrix[3][2] = -1 * ((2 * farPlane * nearPlane) / (farPlane - nearPlane));
 		perspectiveMatrix[2][3] = -1;

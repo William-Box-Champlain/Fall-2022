@@ -234,3 +234,13 @@ GPR-200/GPR200_Transformations_Template/x64/Debug/GPR200_Transformations.pdb
 *.vsidx
 *.db
 *.ipch
+*.db
+*.ipch
+*.db
+*.obj
+*.tlog
+*.lastbuildstate
+*.recipe
+*.ilk
+*.exe
+*.pdb

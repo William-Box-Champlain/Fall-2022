@@ -73,8 +73,6 @@ glm::vec3 camera::getTargetPosition()
 
 void camera::move(camDirection dir, float moveSpeed)
 {
-	glm::vec3 directionVector(0);
-
 	glm::vec3 localForward = getForward(mYaw, mPitch);
 	glm::vec3 localRight = getRight(localForward, mWorldUp);
 	glm::vec3 localUp = getUp(localRight, localForward);
@@ -82,27 +80,26 @@ void camera::move(camDirection dir, float moveSpeed)
 	switch (dir)
 	{
 	case camDirection::forward:
-		directionVector += localForward * moveSpeed;
+		mCamPos += localForward * moveSpeed;
 		break;
 	case camDirection::backwards:
-		directionVector -= localForward * moveSpeed;
+		mCamPos -= localForward * moveSpeed;
 		break;
 	case camDirection::up:
-		directionVector += localUp * moveSpeed;
+		mCamPos += localUp * moveSpeed;
 		break;
 	case camDirection::down:
-		directionVector -= localUp * moveSpeed;
+		mCamPos -= localUp * moveSpeed;
 		break;
 	case camDirection::left:
-		directionVector -= localRight * moveSpeed;
+		mCamPos -= localRight * moveSpeed;
 		break;
 	case camDirection::right:
-		directionVector += localRight * moveSpeed;
+		mCamPos += localRight * moveSpeed;
 		break;
 	default:
 		break;
 	}
-	mCamPos += directionVector;
 }
 
 float camera::clampValue(float min, float max, float value)
