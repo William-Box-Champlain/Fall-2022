@@ -43,6 +43,9 @@ const float MOUSE_SENSITIVITY = 0.1f;
 Camera camera((float)SCREEN_WIDTH / (float)SCREEN_HEIGHT);
 
 Transform cubeTransform;
+Transform planeTransform;
+Transform coneTransform;
+Transform sphereTransform;
 //TODO: Create plane, cone, sphere transform
 
 //Press "C" to toggle back-face culling
@@ -76,10 +79,22 @@ int main() {
 	Shader shader("shaders/vertexShader.vert", "shaders/fragmentShader.frag");
 
 	MeshData cubeMeshData;
+	MeshData planeMeshData;
+	MeshData coneMeshData;
+	MeshData sphereMeshData;
+
 	createCube(1.0f, 1.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), cubeMeshData);
+	createPlane(2.0f, 2.0f, 2.0f, glm::vec3(0.0f, 1.0f, 1.0f), planeMeshData);
+	createCone(1.0f, 3.0f, 12, glm::vec3(1.0f, 1.0f, 0.0f), coneMeshData);
+	createSphere(1.0f, 12, glm::vec3(1.0f, 0.0f, 1.0f), sphereMeshData);
+
 	//TODO: create MeshData for plane, cone, sphere. Use different colors for each!
 
 	Mesh cubeMesh(&cubeMeshData);
+	Mesh planeMesh(&planeMeshData);
+	Mesh coneMesh(&coneMeshData);
+	Mesh sphereMesh(&sphereMeshData);
+
 	//TODO: create Mesh for plane, cone, sphere
 
 	//Enable back-face culling
@@ -100,7 +115,9 @@ int main() {
 
 	//Initialize positions
 	cubeTransform.position = glm::vec3(0.0f,0.0f,0.0f);
-
+	planeTransform.position = glm::vec3(5.0f, 0.0f, 0.0f);
+	coneTransform.position = glm::vec3(10.0f, 0.0f, 0.0f);
+	sphereTransform.position = glm::vec3(15.0f, 0.0f, 0.0f);
 	//Todo: Change plane, cone, sphere positions
 
 	while (!glfwWindowShouldClose(window)) {
@@ -121,6 +138,14 @@ int main() {
 		cubeMesh.draw(drawAsPoints);
 
 		//TODO: Draw plane, cone, sphere
+		shader.setMat4("Model", planeTransform.getModelMatrix());
+		planeMesh.draw(drawAsPoints);
+
+		shader.setMat4("Model", coneTransform.getModelMatrix());
+		coneMesh.draw(drawAsPoints);
+
+		shader.setMat4("Model", sphereTransform.getModelMatrix());
+		sphereMesh.draw(drawAsPoints);
 		
 		glfwSwapBuffers(window);
 		glfwPollEvents();

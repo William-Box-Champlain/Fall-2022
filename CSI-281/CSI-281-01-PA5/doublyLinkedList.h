@@ -426,8 +426,6 @@ bool DoublyLinkedList<T>::remove(T searchKey)
    return deleted;
 }
 
-
-
 /*      Pre:  The list is instantiated and the index for the node to be deleted
  *            is provided.  The index starts at zero
  *     Post:  If the index is valid, the node at the specified index location is

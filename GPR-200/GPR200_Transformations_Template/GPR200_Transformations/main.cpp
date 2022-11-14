@@ -17,7 +17,7 @@
 
 #include "Shader.h"
 
-glm::vec3 worldUp = glm::vec3(0, 1, 0);
+const glm::vec3 worldUp = glm::vec3(0, 1, 0);
 
 const int TRANSFORM_COUNT = 5;
 
@@ -181,18 +181,20 @@ int main() {
 	float fov = 100;
 	float nearPlane = 0.1;
 	float farPlane = 100;
-	float aspectRatio = SCREEN_HEIGHT / SCREEN_WIDTH;
+	float aspectRatio = (float)SCREEN_WIDTH/ SCREEN_HEIGHT;
 
-	perspectiveMatrix = wb::perspective(fov, aspectRatio, nearPlane, farPlane);
-	orthoMatrix = wb::ortho(SCREEN_HEIGHT, aspectRatio, nearPlane, farPlane);
-	
+	projection.perspectiveMatrix = wb::perspective(fov, aspectRatio, nearPlane, farPlane);
+	projection.orthoMatrix = wb::ortho(10.0f, aspectRatio, nearPlane, farPlane);
+
 	//generate camera stuff
 	float sensitivity = 0.05;
-	float yaw = glm::radians<float>(-90);
-	float pitch = glm::radians<float>(0);
-	glm::vec3 startingPosition = glm::vec3(0, 0, 4);
+	float yaw = -90;
+	float pitch = 0;
+	glm::vec3 startingPosition = glm::vec3(0, 0, 3);
 
-	sceneCamera = camera(startingPosition, sensitivity, yaw, pitch, worldUp);
+	sceneCamera.mPosition = startingPosition;
+	sceneCamera.mSensitivity = 0.05;
+	sceneCamera.getForwardRightUp(yaw, pitch, worldUp);
 
 	//create view matrix
 
@@ -211,7 +213,7 @@ int main() {
 
 		//std::cout << deltaTime << std::endl;
 
-		glm::mat4 viewMatrix = wb::lookAt(sceneCamera.getCameraPosition(), sceneCamera.getTargetPosition(), worldUp);
+		glm::mat4 viewMatrix = wb::lookAt(sceneCamera.mPosition, (sceneCamera.mPosition + sceneCamera.mForward), worldUp);
 
 		//update totalMatrix to be drawn
 		//iProjection* iView* iTransform* vec4(in_Pos, 1.0)
@@ -279,20 +281,32 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 
 void cursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 {
-	glm::vec2 cursorPosVec = glm::vec2(xpos, ypos);
-	sceneCamera.point(cursorPosVec, worldUp);
+	float localYaw = 0;
+	float localPitch = 0;
+
+	if (sceneCamera.firstInput)
+	{
+		sceneCamera.mPreviousMousePosition = glm::vec2(xpos, ypos);
+		sceneCamera.firstInput = false;
+	}
+
+	localYaw += (xpos - sceneCamera.mPreviousMousePosition.x);
+	localPitch -= (ypos - sceneCamera.mPreviousMousePosition.y);
+
+	glm::vec2 cursorPosVec = glm::vec2(localYaw, localPitch);
+	sceneCamera.update(cursorPosVec, worldUp);
 }
 
 void processInput(GLFWwindow* window)
 {
-	float moveSpeed = 0.025;
+	float moveSpeed = 1.00;
 	//TODO: move camera using input
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) sceneCamera.move(camDirection::forward,moveSpeed);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) sceneCamera.move(camDirection::backwards,moveSpeed);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) sceneCamera.move(camDirection::left, moveSpeed);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) sceneCamera.move(camDirection::right, moveSpeed);
-	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) sceneCamera.move(camDirection::up, moveSpeed);
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) sceneCamera.move(camDirection::down, moveSpeed);
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) sceneCamera.move(camDirection::forward,moveSpeed,deltaTime,worldUp);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) sceneCamera.move(camDirection::backwards,moveSpeed, deltaTime, worldUp);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) sceneCamera.move(camDirection::left, moveSpeed, deltaTime, worldUp);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) sceneCamera.move(camDirection::right, moveSpeed, deltaTime, worldUp);
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) sceneCamera.move(camDirection::up, moveSpeed, deltaTime, worldUp);
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) sceneCamera.move(camDirection::down, moveSpeed, deltaTime, worldUp);
 }
 GLuint loadTexture(const char* filePath)
 {

@@ -1,5 +1,24 @@
-// CSI-281-01-PA5.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+/*
+Author: William Box
+Class: CSI-281-01
+Assignment: PA 4
+Date Assigned: Sept 27
+Due Date: Nov 11th 11:59 PM
+Description:
+
+Main file used to test the binary search algorithm with doubly-linked lists
+
+Certification of Authenticity:
+I certify that this is entirely my own work, except where I have given
+fully-documented references to the work of others. I understand the definition and
+consequences of plagiarism and acknowledge that the assessor of this assignment
+may, for the purpose of assessing this assignment:
+- Reproduce this assignment and provide a copy to another member of academic staff;
+and/or
+- Communicate a copy of this assignment to a plagiarism checking service (which may
+then retain a copy of this assignment on its database for the purpose of future
+plagiarism checking)
+*/
 
 #include <iostream>
 #include <fstream>
@@ -22,7 +41,6 @@ int main()
     timer.startClock();
     while (list.getCount() < listLength)
     {
-        
         list.insert(wb::getRandomNumber());
     }
     std::cout << "It took " << timer.getTime() << " seconds to load " << listLength << " ints into the linked-list" << std::endl;

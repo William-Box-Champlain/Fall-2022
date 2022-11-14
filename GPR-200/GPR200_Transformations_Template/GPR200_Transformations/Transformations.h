@@ -6,8 +6,6 @@
 
 #include <iostream>
 
-#include "camera.h"
-
 enum class direction
 {
 	forward,
@@ -140,13 +138,13 @@ namespace wb
 
 		glm::mat4 lookAt(1);
 		lookAt[0][0] = r.x;
-		lookAt[0][1] = r.y;
-		lookAt[0][2] = r.z;
-		lookAt[1][0] = u.x;
+		lookAt[1][0] = r.y;
+		lookAt[2][0] = r.z;
+		lookAt[0][1] = u.x;
 		lookAt[1][1] = u.y;
-		lookAt[1][2] = u.z;
-		lookAt[2][0] = f.x;
-		lookAt[2][1] = f.y;
+		lookAt[2][1] = u.z;
+		lookAt[0][2] = f.x;
+		lookAt[1][2] = f.y;
 		lookAt[2][2] = f.z;
 
 		glm::vec3 translationVector = eyePos;
@@ -164,9 +162,9 @@ namespace wb
 		orthoMatrix[0][0] = 2 / (right - left);
 		orthoMatrix[1][1] = 2 / (top - bottom);
 		orthoMatrix[2][2] = -2 / (farPlane - nearPlane);
-		orthoMatrix[3][0] = -(right + left) / (right - left);
-		orthoMatrix[3][1] = -(top + bottom) / (top - bottom);
-		orthoMatrix[3][1] = -(farPlane + nearPlane) / (farPlane - nearPlane);
+		orthoMatrix[3][0] = (-1*(right + left)) / (right - left);
+		orthoMatrix[3][1] = (-1*(top + bottom)) / (top - bottom);
+		orthoMatrix[3][2] = (-1*(farPlane + nearPlane)) / (farPlane - nearPlane);
 
 		return orthoMatrix;
 	}
