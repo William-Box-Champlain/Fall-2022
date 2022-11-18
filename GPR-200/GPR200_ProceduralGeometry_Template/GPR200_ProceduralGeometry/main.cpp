@@ -86,7 +86,7 @@ int main() {
 	createCube(1.0f, 1.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), cubeMeshData);
 	createPlane(2.0f, 2.0f, 2.0f, glm::vec3(0.0f, 1.0f, 1.0f), planeMeshData);
 	createCone(1.0f, 3.0f, 12, glm::vec3(1.0f, 1.0f, 0.0f), coneMeshData);
-	createSphere(1.0f, 12, glm::vec3(1.0f, 0.0f, 1.0f), sphereMeshData);
+	createSphere(1.0f, 25, glm::vec3(1.0f, 0.0f, 1.0f), sphereMeshData);
 
 	//TODO: create MeshData for plane, cone, sphere. Use different colors for each!
 
