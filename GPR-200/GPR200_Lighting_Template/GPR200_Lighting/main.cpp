@@ -68,9 +68,9 @@ bool drawAsPoints = false;
 
 //TODO: Add material variables. HINT: A struct is helpful!
 
-float ambientK = 1.0f;
-float diffuseK = 1.0f;
-float specularK = 1.0f;
+float ambientK = 0.5f;
+float diffuseK = 0.5f;
+float specularK = 0.5f;
 
 glm::vec3 ambientColor = lightColor * ambientK;
 
@@ -173,6 +173,7 @@ int main() {
 		litShader.setVec3("uLightColor", lightColor);
 		litShader.setFloat("uAmbiantK", ambientK);
 		litShader.setFloat("uDiffuseK", diffuseK);
+		litShader.setFloat("uSpecularK", specularK);
 
 		litShader.setVec3("uLightColor", lightColor);
 
