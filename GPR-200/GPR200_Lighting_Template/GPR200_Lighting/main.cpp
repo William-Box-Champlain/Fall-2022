@@ -67,12 +67,20 @@ float lightOrbitSpeed = 1.0f;
 bool drawAsPoints = false;
 
 //TODO: Add material variables. HINT: A struct is helpful!
+struct Material
+{
+	glm::vec3 mAmbient;
+	glm::vec3 mDiffuse;
+	glm::vec3 mSpecular;
+	float mShininess;
+};
 
-float ambientK = 0.5f;
-float diffuseK = 0.5f;
-float specularK = 0.5f;
-
-glm::vec3 ambientColor = lightColor * ambientK;
+struct Light
+{
+	glm::vec3 mAmbient;
+	glm::vec3 mDiffuse;
+	glm::vec3 mSpecular;
+};
 
 int main() {
 	if (!glfwInit()) {
@@ -143,6 +151,17 @@ int main() {
 
 	lightTransform.scale = glm::vec3(0.5f);
 
+	Material testMaterial;
+	testMaterial.mAmbient = glm::vec3(1.0f, 0.5f, 0.31f);
+	testMaterial.mDiffuse = glm::vec3(1.0f, 0.5f, 0.31f);
+	testMaterial.mSpecular = glm::vec3(1.0f, 0.5f, 0.31f);
+	testMaterial.mShininess = 32.0f;
+
+	Light testLight;
+	testLight.mAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+	testLight.mDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+	testLight.mSpecular = glm::vec3(1.0f, 1.0f, 1.0f);
+
 	while (!glfwWindowShouldClose(window)) {
 		processInput(window);
 		glClearColor(bgColor.r,bgColor.g,bgColor.b, 1.0f);
@@ -167,13 +186,19 @@ int main() {
 		litShader.setMat4("uView", camera.getViewMatrix());
 
 		//TODO: Set material uniforms, lightPos, eyePos
-		litShader.setVec3("uLightPos", lightTransform.position);
+		litShader.setVec3("light.position", lightTransform.position);
 		litShader.setVec3("uEyePos", camera.position);
 
 		litShader.setVec3("uLightColor", lightColor);
-		litShader.setFloat("uAmbiantK", ambientK);
-		litShader.setFloat("uDiffuseK", diffuseK);
-		litShader.setFloat("uSpecularK", specularK);
+
+		litShader.setVec3("light.ambient", testLight.mAmbient);
+		litShader.setVec3("light.diffuse", testLight.mDiffuse);
+		litShader.setVec3("light.specular", testLight.mSpecular);
+
+		litShader.setVec3("material.ambient", testMaterial.mAmbient);
+		litShader.setVec3("material.diffuse", testMaterial.mDiffuse);
+		litShader.setVec3("material.specular", testMaterial.mSpecular);
+		litShader.setFloat("material.shininess", testMaterial.mShininess);
 
 		litShader.setVec3("uLightColor", lightColor);
 
@@ -206,9 +231,6 @@ int main() {
 		ImGui::SliderFloat3("Light Orbit Center",&lightOrbitCenter.r,-5.0f,5.0f);
 		ImGui::SliderFloat("Light Orbit Radius", &lightOrbitRadius, 0.0f, 5.0f);
 		ImGui::SliderFloat("Light Orbit Speed", &lightOrbitSpeed, 0.0f, 3.0f);
-		ImGui::SliderFloat("AmbientK", &ambientK, 0.0f, 1.0f);
-		ImGui::SliderFloat("DiffuseK", &diffuseK, 0.0f, 1.0f);
-		ImGui::SliderFloat("SpecularK", &specularK, 0.0f, 1.0f);
 		ImGui::End();
 
 		ImGui::Render();
