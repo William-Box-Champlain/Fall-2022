@@ -140,6 +140,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="EW\Mesh.cpp" />
     <ClCompile Include="EW\Shader.cpp" />
+    <ClCompile Include="WBox\Lights.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EW\Camera.h" />
@@ -157,7 +158,7 @@
     <ClInclude Include="EW\ShapeGen.h" />
     <ClInclude Include="EW\Shader.h" />
     <ClInclude Include="EW\Transform.h" />
-    <ClInclude Include="WBox\DirectionalLight.h" />
+    <ClInclude Include="WBox\Lights.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

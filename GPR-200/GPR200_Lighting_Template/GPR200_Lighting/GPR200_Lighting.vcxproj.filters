@@ -45,6 +45,9 @@
     <ClCompile Include="imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WBox\Lights.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EW\Shader.h">
@@ -92,7 +95,7 @@
     <ClInclude Include="imgui\imstb_truetype.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WBox\DirectionalLight.h">
+    <ClInclude Include="WBox\Lights.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

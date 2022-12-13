@@ -1,3 +1,6 @@
+#include <sstream>
+#include <random>
+
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
@@ -22,6 +25,8 @@
 #include "EW/Transform.h"
 #include "EW/ShapeGen.h"
 
+#include "WBox/Lights.h"
+
 void processInput(GLFWwindow* window);
 void resizeFrameBufferCallback(GLFWwindow* window, int width, int height);
 void keyboardCallback(GLFWwindow* window, int keycode, int scancode, int action, int mods);
@@ -29,6 +34,10 @@ float randomRange(float min, float max);
 void mouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 void mousePosCallback(GLFWwindow* window, double xpos, double ypos);
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+
+glm::vec3 getPointOnSphere(float radius);
+
+const int NUM_OF_POINT_LIGHTS = 2;
 
 float lastFrameTime;
 float deltaTime;
@@ -56,31 +65,44 @@ Camera camera((float)SCREEN_WIDTH / (float)SCREEN_HEIGHT);
 Transform cubeTransform;
 Transform sphereTransform;
 Transform coneTransform;
-Transform lightTransform;
+Transform lightTransform1;
+Transform lightTransform2;
 
 glm::vec3 bgColor = glm::vec3(0);
+
 glm::vec3 lightColor = glm::vec3(1.0f);
-glm::vec3 lightOrbitCenter = glm::vec3(0,3.0f,0);
-float lightOrbitRadius = 5.0f;
-float lightOrbitSpeed = 1.0f;
+glm::vec3 diffuseColor = glm::vec3(0.0f, 0.0f, 0.1f);
+glm::vec3 ambientColor = glm::vec3(0.0f, 0.0f, 0.25f);
+glm::vec3 specularColor = glm::vec3(0.0f, 0.0f, 0.5f);
+
+glm::vec3 orbitalDiffuseColor = glm::vec3(0.2f, 0.0f, 0.0f);
+glm::vec3 orbitalAmbientColor = glm::vec3(0.5f, 0.0f, 0.0f);
+glm::vec3 orbitalSpecularColor = glm::vec3(1.0f, 0.0f, 0.0f);
+
+glm::vec3 pointLightFloats = glm::vec3(1.0f, 0.22f, 0.20f);
+
+glm::vec3 spotLightDiffuseColor = glm::vec3(0.0f, 0.2f, 0.0f);
+glm::vec3 spotLightAmbientColor = glm::vec3(0.0f, 0.5f, 0.0f);
+glm::vec3 spotLightSpecularColor = glm::vec3(0.0f, 1.0f, 0.0f);
+
+glm::vec3 spotLightFloats = glm::vec3(1.0f, 0.045f, 0.0075f);
+float spotlightCutOffDegrees = 12.5f;
+
+//float pointLightConstant = 1.0f;
+//float pointLightLinear = 0.22f;
+//float pointLightQuadratic = 0.20f;
+
+glm::vec3 lightOrbit1Center = glm::vec3(0,0.0f,0);
+float lightOrbit1Radius = 1.0f;
+float lightOrbit1Speed = 1.0f;
+
+glm::vec3 lightOrbit2Center = glm::vec3(0, 0.0f, 0);
+float lightOrbit2Radius = 1.0f;
+float lightOrbit2Speed = -1.0f;
 
 bool drawAsPoints = false;
 
 //TODO: Add material variables. HINT: A struct is helpful!
-struct Material
-{
-	glm::vec3 mAmbient;
-	glm::vec3 mDiffuse;
-	glm::vec3 mSpecular;
-	float mShininess;
-};
-
-struct Light
-{
-	glm::vec3 mAmbient;
-	glm::vec3 mDiffuse;
-	glm::vec3 mSpecular;
-};
 
 int main() {
 	if (!glfwInit()) {
@@ -149,7 +171,8 @@ int main() {
 	sphereTransform.position = glm::vec3(0.0f, 0.0f, 0.0f);
 	coneTransform.position = glm::vec3(2.0f,0.0f,0.0f);
 
-	lightTransform.scale = glm::vec3(0.5f);
+	lightTransform1.scale = glm::vec3(0.5f);
+	lightTransform2.scale = glm::vec3(0.5f);
 
 	Material testMaterial;
 	testMaterial.mAmbient = glm::vec3(1.0f, 0.5f, 0.31f);
@@ -157,12 +180,22 @@ int main() {
 	testMaterial.mSpecular = glm::vec3(1.0f, 0.5f, 0.31f);
 	testMaterial.mShininess = 32.0f;
 
-	Light testLight;
-	testLight.mAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-	testLight.mDiffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-	testLight.mSpecular = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 directionalDirection = glm::vec3(-0.2f, -1.0f, -0.3f);
+
+	glm::vec3 directionalAmbient = glm::vec3(0.0f);
+	glm::vec3 directionalDiffuse = glm::vec3(0.0f);
+	glm::vec3 directionalSpecular = glm::vec3(0.0f);
+	
+	DirectionalLight testDirLight(directionalAmbient,directionalDiffuse,directionalSpecular,directionalDirection);
+
+	glm::vec3 testPointLightPositions[NUM_OF_POINT_LIGHTS];
 
 	while (!glfwWindowShouldClose(window)) {
+
+		testDirLight.setLight(LightType::ambient, ambientColor);
+		testDirLight.setLight(LightType::diffuse, diffuseColor);
+		testDirLight.setLight(LightType::specular, specularColor);
+
 		processInput(window);
 		glClearColor(bgColor.r,bgColor.g,bgColor.b, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -176,9 +209,13 @@ int main() {
 		lastFrameTime = time;
 
 		//Light position 
-		lightTransform.position = lightOrbitCenter;
-		lightTransform.position.x += cosf(time * lightOrbitSpeed) * lightOrbitRadius;
-		lightTransform.position.z += sinf(time * lightOrbitSpeed) * lightOrbitRadius;
+		lightTransform1.position = lightOrbit1Center;
+		lightTransform1.position.x += cosf(time * lightOrbit1Speed) * lightOrbit1Radius;
+		lightTransform1.position.z += sinf(time * lightOrbit1Speed) * lightOrbit1Radius;
+
+		lightTransform2.position = lightOrbit2Center;
+		lightTransform2.position.y += cosf(time * lightOrbit2Speed) * lightOrbit2Radius;
+		lightTransform2.position.z += sinf(time * lightOrbit2Speed) * lightOrbit2Radius;
 
 		//Draw
 		litShader.use();
@@ -186,19 +223,68 @@ int main() {
 		litShader.setMat4("uView", camera.getViewMatrix());
 
 		//TODO: Set material uniforms, lightPos, eyePos
-		litShader.setVec3("light.position", lightTransform.position);
+		litShader.setVec3("light.position", lightTransform1.position);
+ 		litShader.setVec3("dirLight.direction", testDirLight.getDirection());
 		litShader.setVec3("uEyePos", camera.position);
 
 		litShader.setVec3("uLightColor", lightColor);
 
-		litShader.setVec3("light.ambient", testLight.mAmbient);
-		litShader.setVec3("light.diffuse", testLight.mDiffuse);
-		litShader.setVec3("light.specular", testLight.mSpecular);
+
+		//Directional Lighting Stuff
+		/*litShader.setVec3("dirLight.ambient", testDirLight.getLight(LightType::ambient));
+		litShader.setVec3("dirLight.diffuse", testDirLight.getLight(LightType::diffuse));
+		litShader.setVec3("dirLight.specular", testDirLight.getLight(LightType::specular));*/
+
+		litShader.setVec3("dirLight.ambient", ambientColor);
+		litShader.setVec3("dirLight.diffuse", diffuseColor);
+		litShader.setVec3("dirLight.specular", specularColor);
 
 		litShader.setVec3("material.ambient", testMaterial.mAmbient);
 		litShader.setVec3("material.diffuse", testMaterial.mDiffuse);
 		litShader.setVec3("material.specular", testMaterial.mSpecular);
 		litShader.setFloat("material.shininess", testMaterial.mShininess);
+
+		//Point Light Stuff
+		testPointLightPositions[0] = lightTransform1.position;
+		testPointLightPositions[1] = lightTransform2.position;
+
+		for (int i = 0; i < NUM_OF_POINT_LIGHTS; i++)
+		{
+			std::stringstream ss1,ss2,ss3,ss4,ss5,ss6,ss7;
+			ss1 << "pointLights[" << i << "].position";
+			ss2 << "pointLights[" << i << "].ambient";
+			ss3 << "pointLights[" << i << "].diffuse";
+			ss4 << "pointLights[" << i << "].specular";
+			ss5 << "pointLights[" << i << "].constant";
+			ss6 << "pointLights[" << i << "].linear";
+			ss7 << "pointLights[" << i << "].quadratic";
+
+			litShader.setVec3(ss1.str(), testPointLightPositions[i]);
+
+			litShader.setVec3(ss2.str(), orbitalAmbientColor);
+			litShader.setVec3(ss3.str(), orbitalDiffuseColor);
+			litShader.setVec3(ss4.str(), orbitalSpecularColor);
+
+			litShader.setFloat(ss5.str(), pointLightFloats.x);
+			litShader.setFloat(ss6.str(), pointLightFloats.y);
+			litShader.setFloat(ss7.str(), pointLightFloats.z);
+		}
+
+		std::stringstream ss0, ss1, ss2, ss3, ss4, ss5, ss6, ss7, ss8, ss9;
+		ss0 << "sptLight";
+
+		litShader.setVec3(ss0.str()+".position", camera.position);
+		litShader.setVec3(ss0.str() + ".direction", camera.getForward());
+
+		litShader.setVec3(ss0.str() + ".ambient", spotLightAmbientColor);
+		litShader.setVec3(ss0.str() + ".diffuse", spotLightDiffuseColor);
+		litShader.setVec3(ss0.str() + ".specular", spotLightSpecularColor);
+
+		litShader.setFloat(ss0.str() + ".constant", spotLightFloats.x);
+		litShader.setFloat(ss0.str() + ".linear", spotLightFloats.y);
+		litShader.setFloat(ss0.str() + ".quadratic", spotLightFloats.z);
+
+		litShader.setFloat(ss0.str() + ".cutoff", glm::cos(glm::radians(12.5f)));
 
 		litShader.setVec3("uLightColor", lightColor);
 
@@ -218,7 +304,15 @@ int main() {
 		unlitShader.use();
 		unlitShader.setMat4("uProjection", camera.getProjectionMatrix());
 		unlitShader.setMat4("uView", camera.getViewMatrix());
-		unlitShader.setMat4("uModel", lightTransform.getModelMatrix());
+		unlitShader.setMat4("uModel", lightTransform1.getModelMatrix());
+		unlitShader.setVec3("uColor", lightColor);
+		sphereMesh.draw(drawAsPoints);
+
+		//Draw second point light as a small sphere using the unlit shader
+		unlitShader.use();
+		unlitShader.setMat4("uProjection", camera.getProjectionMatrix());
+		unlitShader.setMat4("uView", camera.getViewMatrix());
+		unlitShader.setMat4("uModel", lightTransform2.getModelMatrix());
 		unlitShader.setVec3("uColor", lightColor);
 		sphereMesh.draw(drawAsPoints);
 
@@ -227,10 +321,31 @@ int main() {
 
 		//TODO: Add material settings
 
-		ImGui::ColorEdit3("Light Color", &lightColor.r);
-		ImGui::SliderFloat3("Light Orbit Center",&lightOrbitCenter.r,-5.0f,5.0f);
-		ImGui::SliderFloat("Light Orbit Radius", &lightOrbitRadius, 0.0f, 5.0f);
-		ImGui::SliderFloat("Light Orbit Speed", &lightOrbitSpeed, 0.0f, 3.0f);
+		ImGui::ColorEdit3("Directional Ambient Color", &ambientColor.r);
+		ImGui::ColorEdit3("Directional Diffuse Color", &diffuseColor.r);
+		ImGui::ColorEdit3("Directional Specular Color", &specularColor.r);
+
+		ImGui::ColorEdit3("Spot Light Ambient Color", &spotLightAmbientColor.r);
+		ImGui::ColorEdit3("Spot Light Diffuse Color", &spotLightDiffuseColor.r);
+		ImGui::ColorEdit3("Spot Light Specular Color", &spotLightSpecularColor.r);
+
+		ImGui::SliderFloat("Spot Light Cutoff", &spotlightCutOffDegrees,0.0f,359.9f);
+		ImGui::SliderFloat3("Spot Light Constant, Linear, Quadratic", &spotLightFloats.r, 0.0f, 1.0f);
+
+		ImGui::ColorEdit3("Orbital Ambient Color", &orbitalAmbientColor.r);
+		ImGui::ColorEdit3("Orbital Diffuse Color", &orbitalDiffuseColor.r);
+		ImGui::ColorEdit3("Orbital Specular Color", &orbitalSpecularColor.r);
+
+		ImGui::SliderFloat3("Point Light Constant, Linear, Quadratic", &pointLightFloats.r, 0.0f, 1.0f);
+
+		ImGui::SliderFloat3("Light One Orbit Center",&lightOrbit1Center.r,-5.0f,5.0f);
+		ImGui::SliderFloat("Light One Orbit Radius", &lightOrbit1Radius, 0.0f, 5.0f);
+		ImGui::SliderFloat("Light One Orbit Speed", &lightOrbit1Speed, 0.0f, 3.0f);
+
+		ImGui::SliderFloat3("Light Two Orbit Center", &lightOrbit2Center.r, -5.0f, 5.0f);
+		ImGui::SliderFloat("Light Two Orbit Radius", &lightOrbit2Radius, 0.0f, 5.0f);
+		ImGui::SliderFloat("Light Two Orbit Speed", &lightOrbit2Speed, 0.0f, -3.0f);
+
 		ImGui::End();
 
 		ImGui::Render();
@@ -347,4 +462,20 @@ void processInput(GLFWwindow* window) {
 	camera.position += forward * getAxis(window, GLFW_KEY_W, GLFW_KEY_S) * moveAmnt;
 	camera.position += right * getAxis(window, GLFW_KEY_D, GLFW_KEY_A) * moveAmnt;
 	camera.position += up * getAxis(window, GLFW_KEY_Q, GLFW_KEY_E) * moveAmnt;
+}
+
+glm::vec3 getPointOnSphere(float radius)
+{
+	glm::vec3 point;
+
+	float min = 1;
+	float max = 100;
+
+	point.x = randomRange(min, max);
+	point.y = randomRange(min, max);
+	point.z = randomRange(min, max);
+
+	point = glm::normalize(point);
+
+	return radius * point;
 }
